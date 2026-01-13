@@ -1,0 +1,3879 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>SENA 360 – Plan de Mejoramiento para aprendices</title>
+
+  <script defer src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+
+  <style>
+    :root{
+      --verde-sena:#39A900;
+      --verde-oscuro:#2E7D00;
+      --texto:#111827;
+      --texto2:#4B5563;
+      --borde:#E5E7EB;
+      --fondo:#F3F4F6;
+      --blanco:#FFFFFF;
+      --warn:#B45309;
+      --err:#B91C1C;
+      --ok:#065F46;
+    }
+    *{ box-sizing:border-box; }
+    body{
+      margin:0;
+      font-family:Inter, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      background:var(--fondo);
+      color:var(--texto);
+    }
+    header{
+      background:#fff;
+      padding:12px 20px 6px;
+      border-bottom:6px solid #0f9b1a;
+      box-shadow:0 1px 6px rgba(0,0,0,.06);
+    }
+    .header-content{
+      max-width:1250px;
+      margin:0 auto;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:16px;
+    }
+    .header-left{display:flex;align-items:center;gap:12px;}
+    .header-left-stack{display:flex;flex-direction:column;line-height:1.15;}
+    .header-left img{height:52px;width:auto;}
+    .header-left-text{font-size:16px;font-weight:800;color:#0b3918;}
+.header-left-sub{margin-top:2px;font-size:13px;font-weight:700;color:var(--texto2);letter-spacing:.02em;}
+/* Overlay de carga para anexos (imágenes/PDF) */
+.anexos-overlay{position:fixed;inset:0;background:rgba(15,23,42,.65);display:none;align-items:center;justify-content:center;z-index:9999;padding:18px;}
+.anexos-overlay.is-open{display:flex;}
+.anexos-modal{width:min(980px,100%);max-height:92vh;overflow:auto;background:#fff;border:1px solid rgba(148,163,184,.45);border-radius:18px;box-shadow:0 20px 60px rgba(15,23,42,.35);padding:16px 16px 18px;}
+.anexos-modal-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:12px;}
+.anexos-modal-title{font-weight:800;color:var(--texto1);font-size:14px;letter-spacing:.08em;text-transform:uppercase;}
+.anexos-progress{margin-top:6px;}
+.anexos-progress-track{width:100%;height:10px;background:rgba(148,163,184,.28);border-radius:999px;overflow:hidden;}
+.anexos-progress-bar{height:100%;width:0%;background:var(--verde);transition:width 120ms linear;}
+.anexos-progress-text{margin-top:6px;font-size:12px;color:var(--texto2);text-align:right;font-weight:800;}
+.anexos-preview{margin-top:14px;display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:12px;}
+.anexos-item{border:1px solid rgba(148,163,184,.45);border-radius:14px;overflow:hidden;background:rgba(255,255,255,.92);box-shadow:0 8px 18px rgba(15,23,42,.08);}
+.anexos-thumb{width:100%;aspect-ratio:4/3;background:#f1f5f9;display:flex;align-items:center;justify-content:center;overflow:hidden;}
+.anexos-thumb img{width:100%;height:100%;object-fit:contain;display:block;background:#fff;}
+.anexos-name{padding:8px 10px;font-size:12px;font-weight:800;color:#0f172a;white-space:normal;word-break:break-word;}
+
+    .header-center{font-size:18px;font-weight:800;color:#0d7c1d;text-align:center;}
+    .header-right{font-size:14px;color:var(--texto2);text-align:right;white-space:nowrap;}
+
+    .wrap{max-width:1250px;margin:18px auto 48px;padding:0 14px;}
+    .card{
+      background:var(--blanco);
+      border:1px solid var(--borde);
+      border-radius:16px;
+      box-shadow:0 6px 18px rgba(0,0,0,.06);
+      overflow:hidden;
+    }
+    .card-header{
+      padding:16px 18px;
+      border-bottom:1px solid var(--borde);
+      display:flex;
+      align-items:flex-start;
+      justify-content:space-between;
+      gap:16px;
+    }
+    .card-header h2{margin:0;font-size:18px;font-weight:900;}
+    .card-header .sub{margin-top:6px;color:var(--texto2);font-size:13px;max-width:900px;}
+    .pill{
+      display:inline-flex;align-items:center;gap:8px;
+      padding:6px 10px;border-radius:999px;
+      font-size:12px;font-weight:800;
+      border:1px solid var(--borde);
+      background:#fff;color:#111827;
+      white-space:nowrap;
+    }
+    .pill.ok{border-color:#A7F3D0;background:#ECFDF5;color:var(--ok);}
+    .pill.warn{border-color:#FDE68A;background:#FFFBEB;color:var(--warn);}
+    .pill.err{border-color:#FCA5A5;background:#FEF2F2;color:var(--err);}
+
+    .acordeon{padding:14px 18px 18px;}
+    .acordeon-item{border:1px solid var(--borde);border-radius:14px;overflow:hidden;margin-bottom:12px;background:#fff;}
+    .acordeon-header{
+      width:100%;
+      padding:12px 14px;
+      background:#fff;
+      border:0;
+      border-bottom:1px solid var(--borde);
+      display:flex;align-items:center;justify-content:space-between;gap:10px;
+      font-weight:900;font-size:14px;color:#0b3918;
+      cursor:pointer;
+    }
+    .acordeon-body{display:none;padding:14px;}
+    .acordeon-item.open .acordeon-body{display:block;}
+    .grid{display:grid;grid-template-columns:repeat(12,1fr);gap:12px;}
+    .field{grid-column:span 6;display:flex;flex-direction:column;gap:6px;}
+    .field.col-12{grid-column:span 12;}
+    .field.col-8{grid-column:span 8;}
+    .field.col-4{grid-column:span 4;}
+    .field.col-3{grid-column:span 3;}
+    .field.col-2{grid-column:span 2;}
+    label{font-size:12px;font-weight:900;letter-spacing:.3px;color:#0b3918;}
+    input[type="text"], input[type="date"], input[type="time"], textarea, select{
+      width:100%;
+      padding:10px 12px;
+      border:1px solid var(--borde);
+      border-radius:12px;
+      font-family:inherit;
+      outline:none;
+      font-size:14px;
+      background:#fff;
+    }
+    textarea{min-height:110px;resize:vertical;}
+    input[readonly]{background:#F9FAFB;}
+    .hint{margin:6px 0 0;color:var(--texto2);font-size:12px;line-height:1.35;}
+
+    .hero-section{display:flex;gap:12px;align-items:flex-start;margin-bottom:12px;}
+    .hero-icon{
+      width:44px;height:44px;border-radius:12px;background:#ECFDF5;border:1px solid #A7F3D0;
+      display:flex;align-items:center;justify-content:center;color:#065F46;flex:0 0 auto;
+    }
+    .hero-icon svg{width:22px;height:22px;fill:currentColor;}
+    .hero-title{font-size:16px;font-weight:900;margin:0;}
+    .hero-sub{margin-top:4px;color:var(--texto2);font-size:13px;line-height:1.35;}
+
+    .drop-zone{
+      border:2px dashed #C7F9CC;
+      border-radius:16px;
+      padding:18px;
+      background:#F0FFF2;
+      position:relative;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      text-align:center;
+    }
+    .drop-zone input[type="file"]{
+      position:absolute;inset:0;opacity:0;cursor:pointer;
+    }
+    .drop-zone--active{background:#ECFDF5;border-color:#86EFAC;}
+    .drop-content small{color:var(--texto2);}
+    .btnrow{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px;}
+    .btn{
+      border:1px solid var(--borde);
+      background:#fff;
+      padding:10px 14px;
+      border-radius:12px;
+      font-weight:900;
+      cursor:pointer;
+    }
+    .btn.primary{background:var(--verde-sena);border-color:var(--verde-sena);color:#fff;}
+    .btn.secondary{background:#fff;border-color:var(--borde);color:#111827;}
+    .btn.danger{background:#FEF2F2;border-color:#FCA5A5;color:#991B1B;}
+    .btn:disabled{opacity:.55;cursor:not-allowed;}
+    .alert{
+      display:none;
+      margin-top:10px;
+      padding:10px 12px;
+      border-radius:12px;
+      border:1px solid #FDE68A;
+      background:#FFFBEB;
+      color:#92400E;
+      font-size:13px;
+    }
+    .alert.show{display:block;}
+    .divider{height:1px;background:var(--borde);margin:12px 0;}
+
+    /* Tabla */
+    .table-tools{display:flex;gap:10px;flex-wrap:wrap;align-items:center;justify-content:space-between;margin-bottom:10px;}
+    .table-tools .left{display:flex;gap:10px;flex-wrap:wrap;align-items:center;}
+    .table-tools input{max-width:420px;}
+    table{width:100%;border-collapse:separate;border-spacing:0;overflow:hidden;border:1px solid var(--borde);border-radius:14px;}
+    th, td{padding:10px 10px;border-bottom:1px solid var(--borde);font-size:13px;vertical-align:top;}
+    th{background:#F9FAFB;text-align:left;font-weight:900;color:#0b3918;position:sticky;top:0;z-index:1;}
+    tr:last-child td{border-bottom:0;}
+    .muted{color:var(--texto2);}
+    .chk{display:flex;align-items:center;justify-content:center;}
+    .tiny{font-size:12px;color:var(--texto2);}
+
+    /* Competencia y RA */
+    .ra-box{
+      border:1px solid var(--borde);
+      border-radius:14px;
+      padding:10px 12px;
+      background:#fff;
+      min-height:120px;
+      max-height:220px;
+      overflow:auto;
+    }
+    .ra-item{display:flex;gap:10px;align-items:flex-start;padding:6px 2px;border-bottom:1px dashed #E5E7EB;}
+    .ra-item:last-child{border-bottom:0;}
+    .ra-item label{font-size:12px;font-weight:700;color:#111827;letter-spacing:0;}
+
+    /* Detalle por aprendiz */
+    .ap-card{
+      border:1px solid var(--borde);
+      border-radius:16px;
+      padding:12px 12px;
+      background:#fff;
+      margin-bottom:12px;
+    }
+    .ap-card.ap-color-0{ background:#ffe4e3; } /* Light Red */
+    .ap-card.ap-color-1{ background:#E3F2FD; } /* azul pastel */
+    .ap-card.ap-color-2{ background:#F3E5F5; } /* lila pastel */
+    .ap-card.ap-color-3{ background:#FCE4EC; } /* rosa pastel */
+    .ap-card.ap-color-4{ background:#FFFDE7; } /* amarillo pastel */
+    .ap-card.ap-color-5{ background:#FFF3E0; } /* naranja pastel */
+    .ap-card.ap-color-6{ background:#F5F5F5; } /* gris pastel */
+    .ap-card.ap-color-7{ background:#E0F7FA; } /* azul claro pastel */
+    .ap-card.ap-color-8{ background:#FFEBEE; } /* rojo pastel */
+    .ap-card.ap-color-9{ background:#EFEBE9; } /* café pastel */
+
+    .ap-head{
+      display:flex;
+      align-items:flex-start;
+      justify-content:space-between;
+      gap:10px;
+      margin-bottom:10px;
+    }
+    .ap-title{font-weight:900;}
+    .ap-meta{font-size:12px;color:var(--texto2);margin-top:4px;}
+    .ap-actions{display:flex;gap:8px;flex-wrap:wrap;align-items:center;}
+    .btnMini{
+      padding:8px 10px;border-radius:10px;border:1px solid var(--borde);background:#fff;font-weight:900;cursor:pointer;font-size:12px;
+    }
+    .btnMini.danger{background:#FEF2F2;border-color:#FCA5A5;color:#991B1B;}
+    .comp-table{
+      width:100%;
+      border:1px solid var(--borde);
+      border-radius:14px;
+      overflow:hidden;
+    }
+    .comp-table thead th{position:static;}
+    .comp-table td, .comp-table th{font-size:12.5px;}
+    .comp-table input[type="text"], .comp-table input[type="date"]{
+      padding:8px 10px;border-radius:10px;font-size:13px;
+    }
+    .filebox{
+      border:1px solid var(--borde);
+      border-radius:14px;
+      padding:10px 12px;
+      background:#F9FAFB;
+    }
+  /* === PM Tipo (Académico / Disciplinario) === */
+.switch-row{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  padding:10px 12px;
+  border:1px solid var(--borde);
+  border-radius:14px;
+  background:#fff;
+}
+.pm-switch{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  user-select:none;
+  font-weight:800;
+  color:var(--texto2);
+  white-space:nowrap;
+}
+.pm-switch .lbl{
+  font-size:12px;
+  color:var(--texto2);
+}
+.pm-switch input{
+  position:absolute;
+  opacity:0;
+  pointer-events:none;
+}
+.pm-switch .track{
+  position:relative;
+  width:74px;
+  height:28px;
+  border-radius:999px;
+  border:1px solid var(--borde);
+  background:var(--fondo);
+  flex:0 0 auto;
+}
+.pm-switch .thumb{
+  position:absolute;
+  top:3px;
+  left:3px;
+  width:22px;
+  height:22px;
+  border-radius:999px;
+  background:var(--verde-sena);
+  transition:transform .18s ease;
+}
+.pm-switch input:checked + .track .thumb{
+  transform:translateX(46px);
+}
+.pm-switch .lbl--active{
+  color:var(--texto);
+}
+.hidden{ display:none !important; }
+
+/* Causales del reglamento (por aprendiz) */
+.causales-box{
+  border:1px solid var(--borde);
+  border-radius:14px;
+  background:#fff;
+  padding:10px 12px;
+  display:flex;
+  flex-direction:column;
+  gap:8px;
+}
+.causal-item{
+  display:flex;
+  gap:10px;
+  align-items:flex-start;
+  font-size:13px;
+  color:var(--texto);
+  line-height:1.35;
+  min-height:44px;
+}
+.causal-text{
+  display:flex;
+  gap:8px;
+  flex:1 1 auto;
+}
+.causal-num{
+  min-width:30px;
+  text-align:right;
+  font-weight:900;
+  color:#374151;
+  flex:0 0 auto;
+}
+.causal-desc{flex:1 1 auto;}
+
+.causal-item input{ margin-top:2px; }
+.grid-contents{ display:contents; }
+
+/* Disciplinario: dos columnas (3 y 3) */
+.causales-cols{
+  display:grid;
+  grid-template-columns: 1fr 1fr;
+  column-gap:16px;
+  row-gap:8px;
+}
+.causales-col{
+  display:flex;
+  flex-direction:column;
+  gap:8px;
+}
+
+    
+/* Detalle por aprendiz: subtítulos y separadores */
+.group-title{
+  grid-column:1/-1;
+  margin-top:4px;
+  margin-bottom:-2px;
+  font-size:12px;
+  font-weight:900;
+  letter-spacing:.35px;
+  color:#0b3918;
+  text-transform:uppercase;
+}
+.group-sep{
+  grid-column:1/-1;
+  height:1px;
+  background:rgba(17,24,39,.10);
+  margin:2px 0 8px;
+}
+
+/* Badge tipo (Académico / Disciplinario) */
+.ap-title-row{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  flex-wrap:wrap;
+}
+.type-badge{
+  display:inline-flex;
+  align-items:center;
+  padding:4px 10px;
+  border-radius:999px;
+  font-size:12px;
+  font-weight:900;
+  border:1px solid var(--borde);
+  background:#fff;
+  white-space:nowrap;
+}
+.type-badge.aca{border-color:#A7F3D0;background:#ECFDF5;color:var(--ok);}
+.type-badge.disc{border-color:#FDE68A;background:#FFFBEB;color:var(--warn);}
+
+/* Footer: Diseño y desarrollo */
+.design-footer{padding:26px 14px 34px;}
+.design-footer .df-inner{max-width:1250px;margin:0 auto;text-align:center;}
+.design-footer .df-title{font-size:12px;font-weight:900;letter-spacing:.35em;color:#9CA3AF;margin-bottom:10px;}
+.design-footer .df-card{
+  display:flex;align-items:center;justify-content:space-between;
+  gap:14px;
+  max-width:520px;
+  margin:0 auto;
+  padding:10px 14px;
+  border-radius:999px;
+  background:#fff;
+  border:1px solid #EEF2F7;
+  box-shadow:0 10px 24px rgba(0,0,0,.08);
+}
+.design-footer .df-left{display:flex;align-items:center;gap:12px;}
+.design-footer .df-x{
+  width:38px;height:38px;border-radius:999px;
+  background:#F59E0B;
+  display:flex;align-items:center;justify-content:center;
+  color:#fff;
+  flex:0 0 auto;
+}
+.design-footer .df-text{ text-align:left; line-height:1.15;}
+.design-footer .df-role{font-size:11px;font-weight:900;letter-spacing:.18em;color:#9CA3AF;}
+.design-footer .df-name{font-size:13px;font-weight:900;color:#111827;margin-top:2px;}
+.design-footer .df-gear{
+  width:34px;height:34px;border-radius:999px;
+  border:0;
+  background:#EEF2FF;
+  color:#2563EB;
+  display:flex;align-items:center;justify-content:center;
+  cursor:pointer;
+}
+.design-footer .df-gear svg{width:16px;height:16px;fill:currentColor;}
+.design-footer .df-x svg{width:16px;height:16px;fill:currentColor;}
+@media print{ .design-footer{display:none;} }
+
+
+#btnContinuarDetalle{min-width:200px;}
+</style>
+</head>
+<body>
+  <header>
+    <div class="header-content">
+      <div class="header-left">
+        <img src="https://www.sena.edu.co/Style%20Library/alayout/images/logoSena.png" alt="Logo SENA" decoding="async">
+        <div class="header-left-stack">
+          <div class="header-left-text">Servicio Nacional de Aprendizaje - SENA</div>
+          <div class="header-left-sub">Centro de Comercio y Servicios</div>
+        </div>
+      </div>
+      <div class="header-center">Plan de Mejoramiento para aprendices</div>
+      <div class="header-right" id="hdrRight"></div>
+    </div>
+  </header>
+
+  <div class="wrap">
+    <div class="card">
+      <div class="card-header">
+        <div>
+          <h2>Generador de actas (1 por aprendiz)</h2>
+          <div class="sub">
+            Cargue el <strong>Reporte de Juicios</strong> de SofiaPlus, seleccione aprendices en <strong>EN FORMACIÓN</strong> o <strong>CONDICIONADO</strong>,
+            diligencie los datos del Plan de Mejoramiento y finalice para descargar un documento <strong>por cada aprendiz</strong>.
+          </div>
+        </div>
+        <div class="pill" id="pillEstado">Sin archivo</div>
+      </div>
+
+      <div class="acordeon">
+        <!-- 1) Archivo -->
+        <div class="acordeon-item open" id="accFile">
+          <button class="acordeon-header" type="button" data-acc="accFile">
+            <span>1) Cargar Reporte de Juicios</span>
+            <span class="pill" id="pillArchivo">Pendiente</span>
+          </button>
+          <div class="acordeon-body">
+            <div class="hero-section">
+              <div class="hero-icon">
+                <svg viewBox="0 0 24 24"><path d="M16 4H8c-1.1 0-2 .9-2 2v12a2 2 0 002 2h8a2 2 0 002-2V6c0-1.1-.9-2-2-2zm0 14H8V6h8v12zm-4-9 2 2h-2v3h-2V11H8l4-4z"/></svg>
+              </div>
+              <div>
+                <div class="hero-title">Cargar Reporte de Juicios</div>
+                <div class="hero-sub">
+                  Sube el archivo Excel o CSV descargado de SofiaPlus con los juicios de evaluación.
+                  Ruta: Rol (Gestión de Desarrollo Curricular o Instructor) › Ejecución de la formación › Reportes › Reportes de Juicio de Evaluación.
+                  El sistema identificará automáticamente aprendices en <strong>EN FORMACIÓN</strong> o <strong>CONDICIONADO</strong>.
+                </div>
+              </div>
+            </div>
+
+            <div class="drop-zone" id="dropZone">
+              <input type="file" id="excelFile" accept=".xls,.xlsx,.csv" />
+              <div class="drop-content">
+                <div><strong>Haz clic</strong> para subir o <strong>arrastra y suelta</strong> aquí</div>
+                <small>XLSX / XLS / CSV</small>
+              </div>
+            </div>
+
+            <div class="btnrow">
+              <button class="btn primary" id="btnProcesar" type="button" disabled>Procesar archivo</button>
+              <button class="btn secondary" id="btnLimpiar" type="button" disabled>Limpiar</button>
+              <span class="pill" id="pillInfo">—</span>
+            </div>
+
+            <div class="alert" id="alertBox"></div>
+            <div class="tiny" id="notaArchivo" style="margin-top:10px;"></div>
+          </div>
+        </div>
+
+        <!-- 2) Selección -->
+        <div class="acordeon-item" id="accSeleccion">
+          <button class="acordeon-header" type="button" data-acc="accSeleccion">
+            <span>2) Seleccionar aprendices</span>
+            <span class="pill" id="pillSeleccion">0 seleccionados</span>
+          </button>
+          <div class="acordeon-body">
+            <div class="table-tools">
+              <div class="left">
+                <input type="text" id="tablaSearch" placeholder="Buscar por nombre o documento..." />
+                <button class="btn secondary" type="button" id="btnSelTodos" disabled>Seleccionar todos</button>
+                <button class="btn secondary" type="button" id="btnDesTodos" disabled>Quitar selección</button>
+              </div>
+              <div class="muted" id="tablaMeta">—</div>
+            </div>
+            <div id="tablaWrap"></div>
+
+            <div class="divider"></div>
+            <div class="btnrow">
+              <button class="btn primary" type="button" id="btnContinuarDatos" disabled>Continuar</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- 3) Datos del Plan de Mejoramiento -->
+        <div class="acordeon-item" id="accDatos">
+          <button class="acordeon-header" type="button" data-acc="accDatos">
+            <span>3) Datos del Plan de Mejoramiento</span>
+            <span class="pill" id="pillDatos">Pendiente</span>
+          </button>
+          <div class="acordeon-body">
+            <div class="grid">
+              <div class="field col-4">
+                <label for="fechaAuto">FECHA</label>
+                <input id="fechaAuto" type="text" readonly />
+</div>
+              <div class="field col-4">
+                <label for="numFicha">FICHA</label>
+                <input id="numFicha" type="text" readonly />
+              </div>
+              <div class="field col-4">
+                <label for="programaFormacion">PROGRAMA DE FORMACIÓN</label>
+                <input id="programaFormacion" type="text" readonly />
+              </div>
+
+              <div class="field col-6">
+                <label for="instGerente">INSTRUCTOR GERENTE</label>
+                <select id="instGerente"></select>
+                <input id="instGerenteOtro" type="text" placeholder="Escriba otro (si no está en la lista)" style="display:none; margin-top:8px;" />
+</div>
+
+              
+              <div class="field col-4">
+                <label for="firmaInstructor">FIRMA INSTRUCTOR GERENTE (opcional)</label>
+                <div class="drop-zone" id="firmaDropZone" style="padding:12px; border-radius:12px;">
+                  <input id="firmaInstructor" type="file" accept="image/*" />
+                  <div class="drop-content">
+                    <small><strong>Arrastre</strong> la firma aquí o haga clic para seleccionar.</small>
+                    <div class="tiny" id="firmaInstructorInfo" style="margin-top:6px;">Sin archivo seleccionado.</div>
+                  </div>
+                </div>
+              </div>
+
+
+              <div class="field col-12">
+                <label>ASISTENTES ADICIONALES</label>
+                <div class="hint">Registre asistentes adicionales (Nombre y Cargo).</div>
+                <div id="assistItems"></div>
+                <div class="btnrow" style="justify-content:flex-start; gap:10px; margin-top:10px;">
+                  <button class="btn secondary" type="button" id="btnAddAsistente">Agregar asistente</button>
+                  <button class="btn secondary" type="button" id="btnClearAsistentes">Limpiar</button>
+                </div>
+              </div>
+
+              <div class="field col-4">
+                <label for="ciudad">CIUDAD</label>
+                <input id="ciudad" type="text" value="IBAGUÉ" />
+              </div>
+              <div class="field col-8">
+                <label for="ambienteFormacion">AMBIENTE DE FORMACIÓN</label>
+                <input id="ambienteFormacion" type="text" placeholder="Ej: Aula 301 / Laboratorio / Virtual..." />
+              </div>
+
+              
+<div class="alert" id="alertDatos"></div>
+
+            <div class="btnrow">
+              <button class="btn secondary" type="button" id="btnVolverSeleccion">Volver</button>
+              <button class="btn primary" type="button" id="btnContinuarDetalle">Continuar</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- 4) Detalle por aprendiz -->
+        <div class="acordeon-item" id="accDetalle">
+          <button class="acordeon-header" type="button" data-acc="accDetalle">
+            <span>4) Desarrollo / Conclusiones / Compromisos / Anexo fotográfico (por aprendiz)</span>
+            <span class="pill" id="pillDetalle">Pendiente</span>
+          </button>
+          <div class="acordeon-body">
+            <div class="muted" style="margin-bottom:10px;">
+              Se generará <strong>un acta por cada aprendiz seleccionado</strong>. Los <strong>responsables</strong> de compromisos se asignan automáticamente al aprendiz (puede ajustar actividad/decisión y fecha).
+            </div>
+            <div id="detalleWrap"></div>
+
+            <div class="alert" id="alertDetalle"></div>
+
+            <div class="btnrow">
+              <button class="btn secondary" type="button" id="btnVolverDatos">Volver</button>
+              <button class="btn primary" type="button" id="btnFinalizar">Finalizar (descargar actas)</button>
+            </div>
+          </div>
+        </div>
+      </div><!-- acordeon -->
+    </div><!-- card -->
+  
+  <footer class="design-footer">
+    <div class="df-inner">
+      <div class="df-title">DISEÑO Y DESARROLLO</div>
+      <div class="df-card" role="contentinfo" aria-label="Diseño y desarrollo">
+        <div class="df-left">
+          <div class="df-x" aria-hidden="true">×</div>
+          <div class="df-text">
+            <div class="df-role">INSTRUCTOR DISEÑADOR</div>
+            <div class="df-name">Yeison Castellanos Gordillo</div>
+          </div>
+        </div>
+        <button class="df-gear" type="button" aria-label="Configuración">⚙</button>
+      </div>
+    </div>
+  </footer>
+
+</div><!-- wrap -->
+
+<script>
+/* =========================
+   Utilidades base
+========================= */
+const $ = (id) => document.getElementById(id);
+
+const $$ = (sel, root=document) => Array.from(root.querySelectorAll(sel));
+
+function initPdfJsWorker(){
+  try{
+    if(window.pdfjsLib && window.pdfjsLib.GlobalWorkerOptions){
+      window.pdfjsLib.GlobalWorkerOptions.workerSrc =
+        "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
+    }
+  }catch(e){}
+}
+initPdfJsWorker();
+
+function openAnexosOverlay(title){
+  const ov = $("anexosOverlay");
+  if(!ov) return;
+  const t = $("anexosModalTitle");
+  const p = $("anexosPreview");
+  const bar = $("anexosProgressBar");
+  const txt = $("anexosProgressText");
+  if(t) t.textContent = title || "Cargando anexos…";
+  if(p) p.innerHTML = "";
+  if(bar) bar.style.width = "0%";
+  if(txt) txt.textContent = "0%";
+  ov.classList.add("is-open");
+  ov.setAttribute("aria-hidden","false");
+}
+
+function closeAnexosOverlay(){
+  const ov = $("anexosOverlay");
+  if(!ov) return;
+  ov.classList.remove("is-open");
+  ov.setAttribute("aria-hidden","true");
+}
+
+function setAnexosProgress(processed, total, extra){
+  const bar = $("anexosProgressBar");
+  const txt = $("anexosProgressText");
+  const pct = total ? Math.max(0, Math.min(100, Math.round((processed/total)*100))) : 0;
+  if(bar) bar.style.width = pct + "%";
+  if(txt) txt.textContent = extra ? `${pct}% · ${extra}` : `${pct}%`;
+}
+
+function addAnexoThumb(item){
+  const wrap = $("anexosPreview");
+  if(!wrap || !item || !item.dataUrl) return;
+  const box = document.createElement("div");
+  box.className = "anexos-item";
+  const thumb = document.createElement("div");
+  thumb.className = "anexos-thumb";
+  const img = document.createElement("img");
+  img.alt = item.name || "Anexo";
+  img.src = item.dataUrl;
+  thumb.appendChild(img);
+  const name = document.createElement("div");
+  name.className = "anexos-name";
+  name.textContent = item.name || "Anexo";
+  box.appendChild(thumb);
+  box.appendChild(name);
+  wrap.appendChild(box);
+}
+
+document.addEventListener("click", (e) => {
+  const t = e.target;
+  if(!t) return;
+  if(t.id === "anexosModalClose"){ closeAnexosOverlay(); }
+});
+
+
+function setPill(id, text, type){
+  const el = $(id);
+  if(!el) return;
+  el.textContent = text;
+  el.classList.remove("ok","warn","err");
+  if(type) el.classList.add(type);
+}
+
+function showAlert(msg, targetId="alertBox"){
+  const el = $(targetId);
+  if(!el) return;
+  el.textContent = msg;
+  el.classList.add("show");
+}
+function hideAlert(targetId="alertBox"){
+  const el = $(targetId);
+  if(!el) return;
+  el.textContent = "";
+  el.classList.remove("show");
+}
+
+function toggleAccordion(id, open){
+  const el = $(id);
+  if(!el) return;
+  const willOpen = (open !== undefined) ? open : !el.classList.contains("open");
+  el.classList.toggle("open", willOpen);
+}
+
+document.addEventListener("click", (e) => {
+  const btn = e.target.closest(".acordeon-header");
+  if(!btn) return;
+  const id = btn.dataset.acc;
+  if(!id) return;
+  toggleAccordion(id);
+});
+
+function todayISO(){
+  const d = new Date();
+  const yyyy = d.getFullYear();
+  const mm = String(d.getMonth()+1).padStart(2,"0");
+  const dd = String(d.getDate()).padStart(2,"0");
+  return `${yyyy}-${mm}-${dd}`;
+}
+function todayYYYYMMDD(){
+  const d = new Date();
+  const yyyy = d.getFullYear();
+  const mm = String(d.getMonth()+1).padStart(2,"0");
+  const dd = String(d.getDate()).padStart(2,"0");
+  return `${yyyy}${mm}${dd}`;
+}
+
+function escapeHTML(str){
+  return (str ?? "").toString()
+    .replace(/&/g,"&amp;")
+    .replace(/</g,"&lt;")
+    .replace(/>/g,"&gt;")
+    .replace(/"/g,"&quot;")
+    .replace(/'/g,"&#039;");
+}
+function normalize(s){
+  return (s ?? "").toString().trim().toUpperCase()
+    .normalize("NFD").replace(/[\u0300-\u036f]/g,"")
+    .replace(/\s+/g," ");
+}
+function sanitizeForFileName(s, fallback){
+  const t = (s ?? "").toString().trim();
+  const out = t
+    .normalize("NFD").replace(/[\u0300-\u036f]/g,"")
+    .replace(/[\\\/:*?"<>|]/g,"")
+    .replace(/\s+/g," ")
+    .trim();
+  if(!out) return fallback || "ARCHIVO";
+  return out.slice(0, 120);
+}
+
+/* =========================
+   Estado
+========================= */
+const state = {
+  wb: null,
+  ws: null,
+  rows: [],
+  noFicha: "",
+  programaFormacion: "",
+  fechaISO: todayISO(),
+  fechaYMD: todayYYYYMMDD(),
+  aprendices: [],
+  seleccion: {}, // key -> true
+  instructores: [], // nombres únicos
+  competencias: [], // lista (display)
+  compToResultados: {}, // compDisplay -> [resultados]
+  acta: {
+    programaFormacion: "",
+    ciudad: "IBAGUÉ",
+    ambiente: "",
+    instructorGerente: "",
+    instructorImparte: "",
+    competencia: "",
+    resultados: [], // seleccionados
+    objetivo: "",
+    firmaInstructor: null,
+    firmaImparte: null,
+    asistentesAdicionales: []
+    },
+  detalle: {} // apKey -> { desarrollo, conclusiones, compromisos[], anexos[] }
+};
+
+/* =========================
+   Cargar archivo (drop)
+========================= */
+$("fechaAuto").value = `${state.fechaISO}`;
+
+$("excelFile").addEventListener("change", () => {
+  hideAlert();
+  $("btnProcesar").disabled = !$("excelFile").files?.length;
+});
+
+const dropZone = $("dropZone");
+if(dropZone){
+  const setFileFromDrop = (files) => {
+    if(!files || files.length === 0) return;
+    const input = $("excelFile");
+    if(!input) return;
+    const dt = new DataTransfer();
+    dt.items.add(files[0]);
+    input.files = dt.files;
+    input.dispatchEvent(new Event("change", { bubbles: true }));
+  };
+  const prevent = (e) => { e.preventDefault(); e.stopPropagation(); };
+  ["dragenter","dragover"].forEach(evt => {
+    dropZone.addEventListener(evt, (e) => {
+      prevent(e);
+      dropZone.classList.add("drop-zone--active");
+    });
+  });
+  ["dragleave","dragend","drop"].forEach(evt => {
+    dropZone.addEventListener(evt, (e) => {
+      prevent(e);
+      if(evt === "drop"){
+        dropZone.classList.remove("drop-zone--active");
+        setFileFromDrop(e.dataTransfer?.files);
+      }else{
+        dropZone.classList.remove("drop-zone--active");
+      }
+    });
+  });
+}
+
+const firmaDropZone = $("firmaDropZone");
+if(firmaDropZone){
+  const setFirmaFromDrop = (files) => {
+    if(!files || files.length === 0) return;
+    const input = $("firmaInstructor");
+    if(!input) return;
+    const dt = new DataTransfer();
+    dt.items.add(files[0]);
+    input.files = dt.files;
+    input.dispatchEvent(new Event("change", { bubbles: true }));
+  };
+  const prevent = (e) => { e.preventDefault(); e.stopPropagation(); };
+  ["dragenter","dragover"].forEach(evt => {
+    firmaDropZone.addEventListener(evt, (e) => {
+      prevent(e);
+      firmaDropZone.classList.add("drop-zone--active");
+    });
+  });
+  ["dragleave","dragend","drop"].forEach(evt => {
+    firmaDropZone.addEventListener(evt, (e) => {
+      prevent(e);
+      if(evt === "drop"){
+        firmaDropZone.classList.remove("drop-zone--active");
+        setFirmaFromDrop(e.dataTransfer?.files);
+      }else{
+        firmaDropZone.classList.remove("drop-zone--active");
+      }
+    });
+  });
+}
+
+
+
+const firmaImparteDropZone = $("firmaImparteDropZone");
+if(firmaImparteDropZone){
+  const setFirmaFromDrop = (files) => {
+    if(!files || files.length === 0) return;
+    const input = $("firmaImparte");
+    if(!input) return;
+    const dt = new DataTransfer();
+    dt.items.add(files[0]);
+    input.files = dt.files;
+    input.dispatchEvent(new Event("change", { bubbles: true }));
+  };
+  const prevent = (e) => { e.preventDefault(); e.stopPropagation(); };
+  ["dragenter","dragover"].forEach(evt => {
+    firmaImparteDropZone.addEventListener(evt, (e) => {
+      prevent(e);
+      firmaImparteDropZone.classList.add("drop-zone--active");
+    });
+  });
+  ["dragleave","dragend","drop"].forEach(evt => {
+    firmaImparteDropZone.addEventListener(evt, (e) => {
+      prevent(e);
+      if(evt === "drop"){
+        firmaImparteDropZone.classList.remove("drop-zone--active");
+        setFirmaFromDrop(e.dataTransfer?.files);
+      }else{
+        firmaImparteDropZone.classList.remove("drop-zone--active");
+      }
+    });
+  });
+}
+
+/* =========================
+   Parse: Aprendices (igual lógica robusta del otro ejercicio)
+========================= */
+function parseAprendicesFromRows(rows){
+  const maxScan = Math.min(rows.length, 80);
+
+  const NOM_KEYS = ["NOMBRE","NOMBRES","APRENDIZ","NOMBRE APRENDIZ","NOMBRES Y APELLIDOS","NOMBRE COMPLETO"];
+  const APE_KEYS = ["APELLIDO","APELLIDOS"];
+  const EST_KEYS = ["ESTADO","ESTADO APRENDIZ","CONDICION","ESTADO DE APRENDIZ","ESTADO DE MATRICULA","SITUACION"];
+
+  function hasAny(cellNorm, keys){
+    return keys.some(k => cellNorm === k || cellNorm.includes(k));
+  }
+
+  function findBestColumn(header, scorer){
+    let bestIdx = -1;
+    let bestScore = 0;
+    for(let i=0; i<header.length; i++){
+      const h = header[i];
+      const s = scorer(h);
+      if(s > bestScore){
+        bestScore = s;
+        bestIdx = i;
+      }
+    }
+    return bestIdx;
+  }
+
+  function scoreDocNo(h){
+    if(!h) return 0;
+    let s = 0;
+
+    if(h === "NUMERO DE DOCUMENTO") s += 120;
+    if(h.includes("NUMERO DE DOCUMENTO")) s += 110;
+    if(h.includes("NUMERO DOCUMENTO")) s += 105;
+    if(h.includes("NRO") && h.includes("DOCUMENTO")) s += 95;
+    if(h.includes("NUM DOC")) s += 90;
+    if(h.includes("DOCUMENTO") && h.includes("APRENDIZ")) s += 85;
+    if(h.includes("IDENTIFICACION")) s += 80;
+
+    if(h === "DOCUMENTO") s += 40;
+    if(h.includes("DOCUMENTO")) s += 10;
+
+    if(h.includes("TIPO") && h.includes("DOCUMENTO")) s -= 200;
+    return s;
+  }
+
+  function cleanDoc(v){
+    if(v === null || v === undefined) return "";
+    if(typeof v === "number" && isFinite(v)){
+      return String(Math.trunc(v));
+    }
+    let s = v.toString().trim();
+    s = s.replace(/\.0+$/,"");
+    const digits = s.replace(/\D/g,"");
+    if(digits.length >= 6) return digits;
+    return s;
+  }
+
+  // 1) Detectar fila de encabezados
+  let headerRow = -1;
+  let bestScore = 0;
+  for(let r=0; r<maxScan; r++){
+    const row = rows[r] || [];
+    const normCells = row.map(c => normalize(c));
+    let score = 0;
+    if(normCells.some(c => hasAny(c, NOM_KEYS))) score += 3;
+    if(normCells.some(c => hasAny(c, EST_KEYS))) score += 3;
+    if(normCells.some(c => c.includes("DOCUMENTO"))) score += 2;
+    if(score > bestScore){
+      bestScore = score;
+      headerRow = r;
+    }
+  }
+
+  if(headerRow < 0) return [];
+
+  const header = (rows[headerRow] || []).map(c => normalize(c));
+
+  // Columnas
+  const colNom = header.findIndex(h => hasAny(h, NOM_KEYS));
+  const colApe = header.findIndex(h => hasAny(h, APE_KEYS));
+  const colEstado = header.findIndex(h => hasAny(h, EST_KEYS));
+  const colDocNo = findBestColumn(header, scoreDocNo);
+
+  if(colNom < 0 || colEstado < 0) return [];
+
+  const byKey = new Map();
+  const prio = (estadoNorm) => estadoNorm === "CONDICIONADO" ? 2 : 1;
+
+  for(let r=headerRow+1; r<rows.length; r++){
+    const row = rows[r] || [];
+    const rawEstado = (row[colEstado] ?? "").toString().trim();
+    if(!rawEstado) continue;
+
+    const estNorm = normalize(rawEstado);
+
+    const isFormacion = estNorm.includes("EN FORMACION") || estNorm === "FORMACION" || estNorm.includes("FORMACION");
+    const isCond = estNorm.includes("CONDICIONADO") || estNorm.includes("CONDICIONADO(A)") || estNorm === "CONDICIONADO" || estNorm.includes("CONDICION");
+    if(!isFormacion && !isCond) continue;
+
+    const doc = (colDocNo >= 0 ? cleanDoc(row[colDocNo]) : "");
+    const nom = (row[colNom] ?? "").toString().trim();
+    const ape = (colApe >= 0 ? (row[colApe] ?? "").toString().trim() : "");
+
+    const nombre = (ape ? `${nom} ${ape}` : nom).replace(/\s+/g," ").trim();
+    if(!nombre) continue;
+
+    const key = doc ? `D:${doc}` : `N:${normalize(nombre)}`;
+    if(!key || key === "N:") continue;
+
+    const cand = {
+      key,
+      nombre,
+      documento: doc || "",
+      estadoNorm: isCond ? "CONDICIONADO" : "EN FORMACION",
+      estadoRaw: rawEstado
+    };
+
+    if(!byKey.has(key)){
+      byKey.set(key, cand);
+    }else{
+      const cur = byKey.get(key);
+      if(prio(cand.estadoNorm) > prio(cur.estadoNorm)){
+        byKey.set(key, cand);
+      }else if(prio(cand.estadoNorm) === prio(cur.estadoNorm)){
+        if((cand.nombre || "").length > (cur.nombre || "").length){
+          byKey.set(key, cand);
+        }
+      }
+    }
+  }
+
+  const out = Array.from(byKey.values());
+  out.sort((a,b) => a.nombre.localeCompare(b.nombre, "es", {sensitivity:"base"}));
+  return out;
+}
+
+/* =========================
+   Parse: Instructores / Competencias / Resultados
+========================= */
+function parseInstructorName(v){
+  const raw = (v ?? "").toString().trim();
+  if(!raw) return "";
+  // Ejemplos comunes:
+  // "CC 1110484052 - FRANKLIN JAVIER ACOSTA AGUILAR"
+  // "- FRANKLIN JAVIER ACOSTA AGUILAR"
+  let name = raw;
+
+  // Si contiene separador con guion, tomar el último segmento
+  if(name.includes(" - ")){
+    name = name.split(" - ").slice(-1)[0];
+  } else if(name.includes("- ")){
+    name = name.split("- ").slice(-1)[0];
+  }
+
+  // Quitar prefijos de documento y guiones residuales
+  name = name.replace(/^\s*(CC|TI|CE|PEP|PA)\s*\d+\s*-?\s*/i, "");
+  name = name.replace(/^\s*-+\s*/g, "").trim();
+
+  // Si aún queda " - ", tomar el último
+  if(name.includes(" - ")){
+    name = name.split(" - ").slice(-1)[0].trim();
+  }
+
+  return name.toUpperCase();
+}
+
+
+function formatCompetencia(raw){
+  let s = (raw ?? "").toString().trim();
+  if(!s) return "";
+  // quitar "1 - "
+  s = s.replace(/^\s*\d+\s*-\s*/,"").trim();
+  s = s.replace(/\s+/g," ").toUpperCase();
+
+  // salto de línea antes de "EN LOS"
+  s = s.replace(/\s+EN\s+LOS\s+/i, "\nEN LOS ");
+  return s;
+}
+
+function formatResultado(raw){
+  let s = (raw ?? "").toString().trim();
+  if(!s) return "";
+  s = s.replace(/\s+/g," ").trim();
+  return s.toUpperCase();
+}
+
+function parseInstructoresCompetencias(rows){
+  const instrSet = new Set();
+  const compSet = new Set();
+  const compToRes = {}; // compDisplay -> Set
+
+  for(let r=0; r<rows.length; r++){
+    const row = rows[r] || [];
+    // Columna K (index 10) desde fila 14 (index 13)
+    if(r >= 13){
+      const ins = parseInstructorName(row[10]);
+      if(ins) instrSet.add(ins);
+    }
+    // Competencia/Resultado (F=5, G=6) desde cualquier fila
+    const cRaw = row[5];
+    const gRaw = row[6];
+
+    const cNorm = normalize(cRaw);
+    if(cNorm === "COMPETENCIA" || cNorm.includes("COMPETENCIA")) continue;
+
+    const comp = formatCompetencia(cRaw);
+    const res = formatResultado(gRaw);
+    if(comp){
+      compSet.add(comp);
+      if(res){
+        if(!compToRes[comp]) compToRes[comp] = new Set();
+        compToRes[comp].add(res);
+      }
+    }
+  }
+
+  const instructores = Array.from(instrSet).sort((a,b) => a.localeCompare(b,"es",{sensitivity:"base"}));
+  const competencias = Array.from(compSet).sort((a,b) => a.localeCompare(b,"es",{sensitivity:"base"}));
+  const compToResultados = {};
+  for(const c of competencias){
+    compToResultados[c] = Array.from((compToRes[c] || new Set()).values())
+      .sort((a,b) => a.localeCompare(b,"es",{sensitivity:"base"}));
+  }
+  return {instructores, competencias, compToResultados};
+}
+
+/* =========================
+   Procesar archivo
+========================= */
+$("btnProcesar").addEventListener("click", async () => {
+  hideAlert();
+  const file = $("excelFile").files?.[0];
+  if(!file){
+    showAlert("Seleccione un archivo XLS/XLSX/CSV.");
+    return;
+  }
+
+  try{
+    let wb = null;
+    if(file.name.toLowerCase().endsWith(".csv")){
+      const text = await file.text();
+      wb = XLSX.read(text, {type:"string"});
+    }else{
+      const data = await file.arrayBuffer();
+      wb = XLSX.read(data, {type:"array"});
+    }
+
+    const sheetName = wb.SheetNames[0];
+    const ws = wb.Sheets[sheetName];
+    const rows = XLSX.utils.sheet_to_json(ws, {header:1, defval:""});
+
+    state.wb = wb;
+    state.ws = ws;
+    state.rows = rows;
+
+    // Dato típico del reporte (como el otro ejercicio):
+    state.programaFormacion = (ws["C6"] && ws["C6"].v) ? ws["C6"].v.toString().trim() : "";
+    state.noFicha = (ws["C3"] && ws["C3"].v) ? ws["C3"].v.toString().trim() : "";
+
+    const aprendices = parseAprendicesFromRows(rows);
+    state.aprendices = aprendices;
+
+    if(!aprendices.length){
+      setPill("pillArchivo","Sin registros","warn");
+      setPill("pillEstado","Sin registros","warn");
+      showAlert("No se encontraron aprendices en estado EN FORMACIÓN o CONDICIONADO. Revise el archivo.");
+      return;
+    }
+
+    // Instructores / competencias / resultados
+    const {instructores, competencias, compToResultados} = parseInstructoresCompetencias(rows);
+    state.instructores = instructores;
+    state.competencias = competencias;
+    state.compToResultados = compToResultados;
+
+    // UI: ficha y fecha auto
+    $("numFicha").value = state.noFicha || "";
+    $("programaFormacion").value = (state.programaFormacion || "").toString().trim().toUpperCase();
+    $("fechaAuto").value = `${state.fechaISO}`;
+
+    // Inicializar selects
+    fillInstructorSelects();
+    fillCompetencias();
+
+    // Tabla selección
+    state.seleccion = {};
+    state.detalle = {};
+    renderTabla();
+
+    setPill("pillArchivo", `Cargado (${aprendices.length})`, "ok");
+    setPill("pillEstado", "Archivo cargado", "ok");
+    setPill("pillInfo", state.programaFormacion ? `Programa (C6): ${state.programaFormacion}` : "Programa (C6): N/D", "");
+    $("notaArchivo").textContent = state.programaFormacion
+      ? `Programa detectado desde C6: ${state.programaFormacion}`
+      : "Programa (C6): no detectado. Se imprimirá como N/A.";
+
+    $("btnLimpiar").disabled = false;
+    $("btnSelTodos").disabled = false;
+    $("btnDesTodos").disabled = false;
+
+    toggleAccordion("accFile", false);
+    toggleAccordion("accSeleccion", true);
+
+  }catch(err){
+    console.error(err);
+    setPill("pillArchivo","Error","err");
+    setPill("pillEstado","Error","err");
+    showAlert("No fue posible procesar el archivo. Verifique que sea un XLS/XLSX/CSV válido.");
+  }
+});
+
+$("btnLimpiar").addEventListener("click", () => {
+  hideAlert();
+  hideAlert("alertDatos");
+  hideAlert("alertDetalle");
+
+  state.wb = null;
+  state.ws = null;
+  state.rows = [];
+  state.noFicha = "";
+  state.programaFormacion = "";
+  state.aprendices = [];
+  state.seleccion = {};
+  state.detalle = {};
+  state.instructores = [];
+  state.competencias = [];
+  state.compToResultados = {};
+  state.acta = {
+    programaFormacion: "",
+    ciudad: "IBAGUÉ",
+    ambiente: "",
+    instructorGerente: "",
+    instructorImparte: "",
+    competencia: "",
+    resultados: [],
+    objetivo: "",
+    firmaInstructor: null,
+    asistentesAdicionales: []
+  };
+
+  $("excelFile").value = "";
+  if($("firmaInstructor")) $("firmaInstructor").value = "";
+  if($("firmaInstructorInfo")) $("firmaInstructorInfo").textContent = "Sin archivo seleccionado.";
+  if($("assistItems")) $("assistItems").innerHTML = "";
+
+  $("btnProcesar").disabled = true;
+  $("btnLimpiar").disabled = true;
+  $("btnContinuarDatos").disabled = true;
+  $("btnSelTodos").disabled = true;
+  $("btnDesTodos").disabled = true;
+
+  $("tablaSearch").value = "";
+  $("tablaWrap").innerHTML = "";
+  $("detalleWrap").innerHTML = "";
+
+  $("programaFormacion").value = "";
+  $("numFicha").value = "";
+  $("ambienteFormacion").value = "";
+  $("ciudad").value = "IBAGUÉ";
+
+  setPill("pillArchivo","Pendiente");
+  setPill("pillEstado","Sin archivo");
+  setPill("pillSeleccion","0 seleccionados");
+  setPill("pillDatos","Pendiente");
+  setPill("pillDetalle","Pendiente");
+  $("notaArchivo").textContent = "";
+  setPill("pillInfo","—");
+
+  toggleAccordion("accSeleccion", false);
+  toggleAccordion("accDatos", false);
+  toggleAccordion("accDetalle", false);
+  toggleAccordion("accFile", true);
+});
+
+/* =========================
+   Tabla: render y selección
+========================= */
+function getFilteredAprendices(){
+  const q = normalize(($("tablaSearch").value || "").trim());
+  if(!q) return state.aprendices;
+  return state.aprendices.filter(a => {
+    const hay = normalize(`${a.nombre} ${a.documento} ${a.estadoNorm}`);
+    return hay.includes(q);
+  });
+}
+
+function updateSeleccionPill(){
+  const n = Object.keys(state.seleccion).length;
+  setPill("pillSeleccion", `${n} seleccionados`, n ? "ok" : "");
+  $("btnContinuarDatos").disabled = (n === 0);
+}
+
+function renderTabla(){
+  const data = getFilteredAprendices();
+  $("tablaMeta").textContent = `Mostrando ${data.length} de ${state.aprendices.length}`;
+
+  const rowsHtml = data.map((a, idx) => {
+    const checked = !!state.seleccion[a.key];
+    const estado = a.estadoNorm || "";
+    return `
+      <tr>
+        <td style="width:52px;">${idx + 1}</td>
+        <td><strong>${escapeHTML(a.nombre)}</strong></td>
+        <td style="width:150px;">${escapeHTML(a.documento || "")}</td>
+        <td style="width:140px;"><span class="pill ${estado.includes("COND") ? "warn" : "ok"}" style="padding:4px 8px;">${escapeHTML(estado)}</span></td>
+        <td class="chk" style="width:110px;">
+          <input type="checkbox" data-apkey="${escapeHTML(a.key)}" ${checked ? "checked" : ""} />
+        </td>
+      </tr>
+    `;
+  }).join("");
+
+  $("tablaWrap").innerHTML = `
+    <div style="max-height:420px; overflow:auto; border-radius:14px;">
+      <table>
+        <thead>
+          <tr>
+            <th style="width:52px;">N</th>
+            <th>Nombre</th>
+            <th style="width:150px;">Documento</th>
+            <th style="width:140px;">Estado</th>
+            <th style="width:110px;">Seleccionar</th>
+          </tr>
+        </thead>
+        <tbody>${rowsHtml || `<tr><td colspan="5" class="muted">Sin resultados.</td></tr>`}</tbody>
+      </table>
+    </div>
+  `;
+
+  $("tablaWrap").querySelectorAll('input[type="checkbox"][data-apkey]').forEach(chk => {
+    chk.addEventListener("change", () => {
+      const key = chk.dataset.apkey;
+      if(chk.checked){
+        state.seleccion[key] = true;
+      }else{
+        delete state.seleccion[key];
+      }
+      updateSeleccionPill();
+    });
+  });
+
+  updateSeleccionPill();
+}
+
+$("tablaSearch").addEventListener("input", () => renderTabla());
+
+$("btnSelTodos").addEventListener("click", () => {
+  const data = getFilteredAprendices();
+  data.forEach(a => state.seleccion[a.key] = true);
+  renderTabla();
+});
+
+$("btnDesTodos").addEventListener("click", () => {
+  const data = getFilteredAprendices();
+  data.forEach(a => delete state.seleccion[a.key]);
+  renderTabla();
+});
+
+$("btnContinuarDatos").addEventListener("click", () => {
+  hideAlert();
+  const sel = Object.keys(state.seleccion);
+  if(!sel.length){
+    showAlert("Seleccione al menos un aprendiz para continuar.");
+    return;
+  }
+  toggleAccordion("accSeleccion", false);
+  toggleAccordion("accDatos", true);
+});
+
+$("btnVolverSeleccion").addEventListener("click", () => {
+  hideAlert("alertDatos");
+  toggleAccordion("accDatos", false);
+  toggleAccordion("accSeleccion", true);
+});
+
+/* =========================
+   Datos del PM (instructores/competencias/RA)
+========================= */
+function fillInstructorSelects(){
+  const base = [`<option value="">Seleccione...</option>`]
+    .concat(state.instructores.map(n => `<option value="${escapeHTML(n)}">${escapeHTML(n)}</option>`))
+    .concat([`<option value="__OTRO__">OTRO (escribir)</option>`])
+    .join("");
+
+  $("instGerente").innerHTML = base;
+  if($("instImparte")) $("instImparte").innerHTML = base;
+
+  // Sugerencias para RESPONSABLE en compromisos (fallback)
+  // Nota: el listado principal se genera por aprendiz (datalist por tarjeta),
+  // aquí se mantiene un datalist global mínimo por compatibilidad.
+  const dl = $("responsablesList");
+  if(dl){
+    const imparteUp = (((state && state.acta && state.acta.instructorImparte) ? state.acta.instructorImparte : "")).toString().trim().toUpperCase();
+    const gerenteUp = (state.acta.instructorGerente || "").toString().trim().toUpperCase();
+    const includeImparte = !!(imparteUp && gerenteUp && imparteUp !== gerenteUp);
+
+    const roles = ["Aprendiz","Instructor gerente"]
+      .concat(includeImparte ? ["Instructor que imparte"] : [])
+      .concat(["Asistentes"]);
+
+    dl.innerHTML = roles.map(r => `<option value="${escapeHTML(r)}"></option>`).join("");
+  }
+
+  const toggleOtro = (selId, otroId, doFocus=true) => {
+    const sel = $(selId);
+    const otro = $(otroId);
+    const v = sel.value;
+    if(v === "__OTRO__"){
+      otro.style.display = "block";
+      if(doFocus) otro.focus();
+    }else{
+      otro.style.display = "none";
+      otro.value = "";
+    }
+  };
+
+  const chk = $("chkOtroImparte");
+  const syncImparte = () => {
+    if(!chk || !$("instImparte") || !$("instImparteOtro")) return;
+    const allowOtro = chk.checked;
+    const selG = $("instGerente");
+    const selI = $("instImparte");
+
+    selI.disabled = !allowOtro;
+
+    if(!allowOtro){
+      selI.value = selG.value;
+      // reflejar texto "OTRO" si aplica
+      if(selG.value === "__OTRO__"){
+        $("instImparteOtro").style.display = "block";
+        $("instImparteOtro").value = ($("instGerenteOtro").value || "").toUpperCase();
+      }else{
+        $("instImparteOtro").style.display = "none";
+        $("instImparteOtro").value = "";
+      }
+    }else{
+      if($("instImparte")) toggleOtro("instImparte","instImparteOtro", false);
+    }
+  };
+
+  $("instGerente").addEventListener("change", () => {
+    toggleOtro("instGerente","instGerenteOtro");
+    if(chk && !chk.checked) syncImparte();
+  });
+
+  $("instGerenteOtro").addEventListener("input", () => {
+    const chk = $("chkOtroImparte");
+    if(chk && !chk.checked && $("instGerente").value === "__OTRO__"){
+      $("instImparteOtro").value = ($("instGerenteOtro").value || "").toUpperCase();
+    }
+  });
+
+  if($("instImparte")) $("instImparte").addEventListener("change", () => toggleOtro("instImparte","instImparteOtro"));
+
+  if(chk){
+    chk.addEventListener("change", () => {
+      if(!chk.checked){
+        // al desactivar, vuelve a usar el mismo del gerente
+        const selI = $("instImparte");
+        if(selI) selI.value = $("instGerente").value;
+      }
+      syncImparte();
+    });
+    chk.checked = false;
+    syncImparte();
+  }
+
+  // init
+  toggleOtro("instGerente","instGerenteOtro", false);
+  if($("instImparte")) toggleOtro("instImparte","instImparteOtro", false);
+}
+
+
+function fillCompetencias(){
+  const sel = $("competenciaSel");
+  if(!sel) return;
+
+  const opts = [`<option value="">Seleccione...</option>`]
+    .concat(state.competencias.map(c => {
+      const label = c.replace(/\n/g, " / ");
+      return `<option value="${escapeHTML(c)}">${escapeHTML(label)}</option>`;
+    }))
+    .join("");
+  sel.innerHTML = opts;
+
+  sel.addEventListener("change", () => renderResultadosForCompetencia());
+}
+
+function renderResultadosForCompetencia(){
+  const sel = $("competenciaSel");
+  const box = $("raBox");
+  if(!sel || !box) return;
+  const comp = sel.value || "";
+  if(!comp){
+    box.innerHTML = `<div class="muted">Seleccione una competencia para ver los resultados.</div>`;
+    return;
+  }
+  const list = (state.compToResultados[comp] || []);
+    // Ajuste: predeterminar todos los Resultados de Aprendizaje seleccionados
+    if(!d.resultados || !d.resultados.length){
+      d.resultados = list.map(r => String(r).trim()).filter(Boolean);
+    }
+  if(!list.length){
+    box.innerHTML = `<div class="muted">No se encontraron resultados asociados a esta competencia.</div>`;
+    return;
+  }
+  // Por defecto, todos marcados
+  box.innerHTML = list.map((ra, i) => `
+    <div class="ra-item">
+      <input type="checkbox" id="ra_${i}" data-ra="${escapeHTML(ra)}" checked />
+      <label for="ra_${i}">${escapeHTML(ra)}</label>
+    </div>
+  `).join("");
+}
+
+function getSelectedInstructors(){
+  const clean = (s) => (s || "").toString().toUpperCase().replace(/^\s*-+\s*/g, "").trim();
+
+  const gSelEl = $("instGerente");
+  const gOtroEl = $("instGerenteOtro");
+  const gSel = gSelEl ? gSelEl.value : "";
+  const gOtro = clean((gOtroEl ? gOtroEl.value : ""));
+
+  const gerente = (gSel === "__OTRO__") ? gOtro : clean(gSel || "");
+
+  // Si la UI de "imparte" no existe (porque es por aprendiz), usar por defecto el gerente
+  const iSelEl = $("instImparte");
+  const iOtroEl = $("instImparteOtro");
+  const chk = $("chkOtroImparte");
+
+  if(!iSelEl || !iOtroEl || !chk){
+    return { gerente, imparte: gerente };
+  }
+
+  const iSel = iSelEl.value;
+  const iOtro = clean(iOtroEl.value || "");
+
+  let imparte = "";
+  if(!chk.checked){
+    imparte = gerente;
+  }else{
+    imparte = (iSel === "__OTRO__") ? iOtro : clean(iSel || "");
+  }
+
+  return { gerente, imparte };
+}
+
+function getResultadosSeleccionados(){
+  const sel = $("competenciaSel");
+  const box = $("raBox");
+  if(!sel || !box) return [];
+  const comp = sel.value || "";
+  if(!comp) return [];
+  const checks = Array.from(box.querySelectorAll('input[type="checkbox"][data-ra]'));
+  return checks.filter(c => c.checked).map(c => (c.dataset.ra || "").trim()).filter(Boolean);
+}
+
+/* =========================
+   Continuar a Detalle
+========================= */
+$("btnContinuarDetalle").addEventListener("click", () => {
+  hideAlert("alertDatos");
+
+  const programa = ($("programaFormacion").value || "").trim().toUpperCase();
+  const ficha = ($("numFicha").value || "").trim();
+  const ciudad = ($("ciudad").value || "").trim().toUpperCase();
+  const ambiente = ($("ambienteFormacion").value || "").trim().toUpperCase();
+  const objetivo = "";
+
+  const {gerente} = getSelectedInstructors();
+
+  if(!ficha){
+    showAlert("No se detectó la ficha desde el archivo (C3). Revise el reporte.", "alertDatos");
+    return;
+  }
+  if(!programa){
+    showAlert("Diligencie: PROGRAMA DE FORMACIÓN.", "alertDatos");
+    return;
+  }
+  if(!gerente){
+    showAlert("Seleccione o escriba: INSTRUCTOR GERENTE.", "alertDatos");
+    return;
+  }
+  if(!ambiente){
+    showAlert("Diligencie: AMBIENTE DE FORMACIÓN.", "alertDatos");
+    return;
+  }
+
+  // Guardar
+  state.acta.programaFormacion = programa;
+  state.acta.ciudad = ciudad || "IBAGUÉ";
+  state.acta.ambiente = ambiente;
+  state.acta.instructorGerente = gerente;
+  state.acta.instructorImparte = gerente; // por defecto (por aprendiz se define en Bloque 4)
+  state.acta.objetivo = objetivo;
+  state.acta.competencia = "";
+  state.acta.resultados = [];
+  state.acta.asistentesAdicionales = readAsistentesAdicionalesFromUI();
+
+  setPill("pillDatos","Completado","ok");
+
+  // Render detalle por aprendiz seleccionado
+  renderDetallePorAprendiz();
+
+  toggleAccordion("accDatos", false);
+  toggleAccordion("accDetalle", true);
+});
+
+$("btnVolverDatos").addEventListener("click", () => {
+  hideAlert("alertDetalle");
+  toggleAccordion("accDetalle", false);
+  toggleAccordion("accDatos", true);
+});
+
+/* =========================
+   Detalle por aprendiz (UI)
+========================= */
+function ensureDetalle(apKey){
+  if(state.detalle[apKey]) return;
+
+  const ap = getAprMap()[apKey] || {};
+  const apNombreUp = (ap.nombre || "").toString().trim().toUpperCase();
+  const instGerenteUp = (state.acta.instructorGerente || "").toString().trim().toUpperCase();
+
+  // Texto predeterminado para DESARROLLO (editable)
+  const now = new Date();
+  const hh = String(now.getHours()).padStart(2,"0");
+  const mm = String(now.getMinutes()).padStart(2,"0");
+  const hora = `${hh}:${mm}`;
+
+  const fechaRaw = (formatFechaLarga(state.fechaISO) || "").replace(",", "");
+  const fechaLarga = fechaRaw ? (fechaRaw.charAt(0).toUpperCase() + fechaRaw.slice(1)) : "[FECHA]";
+
+  const lugar = (state.acta.ambiente || "").toString().trim() || "[LUGAR]";
+  const instGer = (state.acta.instructorGerente || "").toString().trim().toUpperCase() || "[NOMBRE INSTRUCTOR GERENTE]";
+  const competenciaUp = "XXXX";
+  const resultadosUp = "XXXXX";
+
+  const desarrolloDefault =
+`Siendo las ${hora} del día ${fechaLarga} se reunieron en ${lugar} el aprendiz ${apNombreUp || "[NOMBRE APRENDIZ]"} y el instructor Gerente ${instGer}, para Concertar plan de Mejoramiento
+CAUSA:
+No cumplimiento del CAPÍTULO III. Artículo 8o. Deberes del aprendiz SENA
+6. Cumplir con todas las actividades de su proceso formativo, presentando las evidencias según la planeación pedagógica, guías de aprendizaje y cronograma, en los plazos o en la oportunidad que estas deban presentarse o reportarse, a través de los medios dispuestos para ello.
+Con el Tema XXX, Correspondiente a la competencia ${competenciaUp}
+Con los resultados de aprendizaje ${resultadosUp}`;
+
+  // Compromisos predeterminados (editables)
+  const instImparteUp = (instGerenteUp || "").toString().trim().toUpperCase() || "[NOMBRE INSTRUCTOR QUE IMPARTE]";
+
+  state.detalle[apKey] = {
+tipoPM: "academico",
+// Causales seleccionadas (se insertan en DESARROLLO después de "CAUSA:")
+causales: [
+  "6. Cumplir con todas las actividades de su proceso formativo, presentando las evidencias según la planeación pedagógica, guías de aprendizaje y cronograma, en los plazos o en la oportunidad que estas deban presentarse o reportarse, a través de los medios dispuestos para ello."
+],
+causalOtro: "",
+_causalesAcademico: null,
+_causalesDisciplinario: null,
+_compromisosAcademico: null,
+    tema: "",
+    competencia: "",
+    resultados: [],
+    instructorImparte: instGerenteUp,
+    firmaImparte: null,
+    desarrollo: desarrolloDefault,
+    conclusiones: "",
+    compromisos: [
+      {
+        actividad: "SE ESTABLECE UNA NUEVA FECHA LÍMITE PARA LA ENTREGA DE LAS EVIDENCIAS PENDIENTES",
+        fecha: state.fechaISO,
+        responsable: apNombreUp
+      },
+      {
+        actividad: "REALIZAR SEGUIMIENTO POR PARTE DEL INSTRUCTOR PARA GARANTIZAR EL CUMPLIMIENTO.",
+        fecha: state.fechaISO,
+        responsable: instImparteUp
+      }
+    ],
+    anexos: [] // {name, dataUrl}
+  };
+}
+
+function getAprMap(){
+  const map = {};
+  state.aprendices.forEach(a => map[a.key] = a);
+  return map;
+}
+
+function addCompromisoRow(apKey, initial){
+  ensureDetalle(apKey);
+  const d = state.detalle[apKey];
+  const ap = getAprMap()[apKey];
+  d.compromisos.push({
+    actividad: (initial?.actividad || "").toUpperCase(),
+    fecha: initial?.fecha || state.fechaISO,
+    responsable: (initial?.responsable || "").toString().trim().toUpperCase()
+  });
+  renderCompromisosTable(apKey);
+}
+
+function delCompromisoRow(apKey, idx){
+  ensureDetalle(apKey);
+  const d = state.detalle[apKey];
+  d.compromisos.splice(idx,1);
+  renderCompromisosTable(apKey);
+}
+
+
+function renderCompromisosTable(apKey){
+  const ap = getAprMap()[apKey];
+  const d = state.detalle[apKey];
+
+  // Asegurar que el compromiso de seguimiento quede a nombre del instructor seleccionado en "IMPARTIDA POR EL INSTRUCTOR"
+  try{
+    const segTxt = "REALIZAR SEGUIMIENTO POR PARTE DEL INSTRUCTOR PARA GARANTIZAR EL CUMPLIMIENTO.";
+    const imparteUp0 = (d && d.instructorImparte) ? String(d.instructorImparte).trim().toUpperCase() : "";
+    if(imparteUp0 && Array.isArray(d.compromisos)){
+      d.compromisos.forEach(c => {
+        const act = (c && c.actividad) ? String(c.actividad).trim().toUpperCase() : "";
+        if(act === segTxt){ c.responsable = imparteUp0; }
+      });
+    }
+  }catch(e){}
+
+  const bodyId = `compBody_${cssEscape(apKey)}`;
+  const respListId = `responsables_${cssEscape(apKey)}`;
+  const apNombreUp = (ap?.nombre || "").toString().trim().toUpperCase();
+  const tbody = document.getElementById(bodyId);
+  if(!tbody) return;
+
+  const rows = (d.compromisos || []).map((c, idx) => {
+    const respVal = (c.responsable || "").toString().trim().toUpperCase();
+
+    const imparteUp = (d.instructorImparte || "").toString().trim().toUpperCase();
+    const gerenteUp = (state.acta.instructorGerente || "").toString().trim().toUpperCase();
+    const includeImparte = !!(imparteUp && gerenteUp && imparteUp !== gerenteUp);
+
+    const asistentesNames = (state.acta.asistentesAdicionales || [])
+      .map(a => (a && a.nombre) ? String(a.nombre).trim().toUpperCase() : "")
+      .filter(Boolean);
+
+    // Opciones: solo nombres (sin etiquetas)
+    const baseNames = [];
+    if(apNombreUp) baseNames.push(apNombreUp);
+    if(gerenteUp) baseNames.push(gerenteUp);
+    if(imparteUp) baseNames.push(imparteUp);
+    asistentesNames.forEach(n => baseNames.push(n));
+
+    const uniqNames = [];
+    const seen = new Set();
+    baseNames.forEach(n => {
+      const v = (n || "").toString().trim().toUpperCase();
+      if(v && !seen.has(v)){
+        seen.add(v);
+        uniqNames.push(v);
+      }
+    });
+
+    // Migración: valores antiguos por etiqueta -> nombre
+    const legacyMap = {
+      "APRENDIZ": apNombreUp,
+      "INSTRUCTOR GERENTE": gerenteUp,
+      "INSTRUCTOR QUE IMPARTE": imparteUp,
+      "ASISTENTES": asistentesNames.length === 1 ? asistentesNames[0] : (asistentesNames[0] || "ASISTENTES")
+    };
+    const legacyKey = (respVal || "").toUpperCase();
+    const respValNorm = legacyMap[legacyKey]
+      ? (legacyMap[legacyKey] || "").toString().trim().toUpperCase()
+      : respVal;
+
+    if(legacyMap[legacyKey] && respValNorm){
+      try{ state.detalle[apKey].compromisos[idx].responsable = respValNorm; }catch(e){}
+    }
+
+    const nameSet = new Set(uniqNames);
+
+    let respOptionsHtml = `<option value=""></option>`;
+    if(respValNorm && !nameSet.has(respValNorm)){
+      respOptionsHtml += `<option value="${escapeHTML(respValNorm)}" selected>${escapeHTML(respValNorm)}</option>`;
+    }
+    uniqNames.forEach(n => {
+      const sel = respValNorm === n ? " selected" : "";
+      respOptionsHtml += `<option value="${escapeHTML(n)}"${sel}>${escapeHTML(n)}</option>`;
+    });
+
+
+    
+
+    return `
+    <tr>
+      <td>
+        <input type="text" value="${escapeHTML(c.actividad || "")}" data-comp-act="${escapeHTML(apKey)}" data-idx="${idx}" placeholder="ACTIVIDAD / DECISIÓN" />
+      </td>
+      <td style="width:160px;">
+        <input type="date" value="${escapeHTML(c.fecha || state.fechaISO)}" data-comp-fecha="${escapeHTML(apKey)}" data-idx="${idx}" />
+      </td>
+      <td style="width:260px;">
+        <select data-comp-resp="${escapeHTML(apKey)}" data-idx="${idx}">${respOptionsHtml}</select>
+      </td>
+      <td style="width:110px;text-align:center;">
+        <button class="btnMini danger" type="button" data-del-comp="${escapeHTML(apKey)}" data-idx="${idx}">Eliminar</button>
+      </td>
+    </tr>
+  `;
+  }).join("");
+
+  tbody.innerHTML = rows || `<tr><td colspan="4" class="muted">Sin compromisos. Use “Añadir otro”.</td></tr>`;
+
+  // bind inputs
+  tbody.querySelectorAll('input[data-comp-act]').forEach(inp => {
+    inp.addEventListener("input", () => {
+      const k = inp.dataset.compAct;
+      const i = Number(inp.dataset.idx);
+      ensureDetalle(k);
+      const start = inp.selectionStart, end = inp.selectionEnd;
+      state.detalle[k].compromisos[i].actividad = (inp.value || "").toUpperCase();
+      if(typeof start === "number" && typeof end === "number"){
+        inp.setSelectionRange(start,end);
+      }
+    });
+  });
+  tbody.querySelectorAll('input[data-comp-fecha]').forEach(inp => {
+    inp.addEventListener("change", () => {
+      const k = inp.dataset.compFecha;
+      const i = Number(inp.dataset.idx);
+      ensureDetalle(k);
+      state.detalle[k].compromisos[i].fecha = inp.value || state.fechaISO;
+    });
+  });
+  tbody.querySelectorAll('[data-comp-resp]').forEach(el => {
+    const handler = () => {
+      const k = el.dataset.compResp;
+      const i = Number(el.dataset.idx);
+      ensureDetalle(k);
+      const v = (el.value || "").toUpperCase();
+      state.detalle[k].compromisos[i].responsable = v;
+      // Mantener el cursor solo en inputs de texto
+      if(el.tagName === "INPUT"){
+        const start = el.selectionStart, end = el.selectionEnd;
+        if(typeof start === "number" && typeof end === "number"){
+          el.setSelectionRange(start,end);
+        }
+      }
+    };
+    el.addEventListener("change", handler);
+    el.addEventListener("input", handler);
+  });
+  tbody.querySelectorAll('button[data-del-comp]').forEach(btn => {
+    btn.addEventListener("click", () => {
+      delCompromisoRow(btn.dataset.delComp, Number(btn.dataset.idx));
+    });
+  });
+}
+
+
+
+function cssEscape(s){
+  // mínimo, para ids
+  return (s || "").replace(/[^a-zA-Z0-9\-_]/g, "_");
+}
+
+
+function getImageNaturalSizeFromFile(file){
+  return new Promise((resolve) => {
+    try{
+      const url = URL.createObjectURL(file);
+      const img = new Image();
+      img.onload = () => {
+        const width = Number(img.naturalWidth || img.width || 0);
+        const height = Number(img.naturalHeight || img.height || 0);
+        try{ URL.revokeObjectURL(url); }catch(e){}
+        resolve({ width, height });
+      };
+      img.onerror = () => {
+        try{ URL.revokeObjectURL(url); }catch(e){}
+        resolve({ width: 0, height: 0 });
+      };
+      img.src = url;
+    }catch(e){
+      resolve({ width: 0, height: 0 });
+    }
+  });
+}
+
+function buildObjetivoPMText(apKey){
+  ensureDetalle(apKey);
+  const d = state.detalle[apKey] || {};
+  const tipo = String(d.tipoPM || "academico").toLowerCase();
+
+  if(tipo === "disciplinario"){
+    return "Concertar el Plan de Mejoramiento Disciplinario estableciendo compromisos para lograr cambios de carácter comportamental y actitudinal, debido a  falta leve o incumplimiento de deberes, según lo establecido en el Artículo 46 del Reglamento del Aprendiz, con el fin de propiciar cambios de conducta que favorezcan la convivencia en la comunidad educativa, tras haber agotado los llamados de atención verbales y escritos correspondientes";
+  }
+
+  const tema = (d.tema || "").toString().trim().toUpperCase() || "XXXXX";
+  const competencia = (d.competencia || "").toString().trim().toUpperCase() || "[NOMBRE DE LA COMPETENCIA]";
+  const instImp = (d.instructorImparte || "").toString().trim().toUpperCase() || "XXXXXXX";
+
+  return `Concertar el Plan de Mejoramiento Académico  y Definir las actividades de aprendizaje y evidencias necesarias para superar el bajo rendimiento académico del tema ${tema}, para garantizar el logro de los Resultados de Aprendizaje pendientes en la Competencia ${competencia}, impartida por el instructor ${instImp}, tras haber agotado los dos (2) llamados de atención académicos previos.`;
+}
+
+
+async function canvasToOptimizedJpegDataURL(canvas, quality, maxSide){
+  const q = (typeof quality === "number") ? quality : 0.82;
+  const maxS = (typeof maxSide === "number" && maxSide > 0) ? maxSide : 1600;
+  if(!canvas) throw new Error("Canvas inválido");
+  const w = canvas.width || 0;
+  const h = canvas.height || 0;
+  if(!w || !h) throw new Error("Canvas sin dimensiones");
+  const maxDim = Math.max(w,h);
+  if(maxDim <= maxS){
+    return { dataUrl: canvas.toDataURL("image/jpeg", q), width: w, height: h };
+  }
+  const scale = maxS / maxDim;
+  const cw = Math.max(1, Math.round(w * scale));
+  const ch = Math.max(1, Math.round(h * scale));
+  const c2 = document.createElement("canvas");
+  c2.width = cw; c2.height = ch;
+  const ctx2 = c2.getContext("2d");
+  ctx2.fillStyle = "#ffffff";
+  ctx2.fillRect(0,0,cw,ch);
+  ctx2.drawImage(canvas, 0,0,cw,ch);
+  return { dataUrl: c2.toDataURL("image/jpeg", q), width: cw, height: ch };
+}
+
+async function pdfFileToImageItems(file, onItem, onProgress){
+  if(!window.pdfjsLib) throw new Error("pdf.js no disponible");
+  const buf = await file.arrayBuffer();
+  const pdf = await window.pdfjsLib.getDocument({ data: buf }).promise;
+  const out = [];
+  const totalPages = pdf.numPages || 0;
+
+  for(let p=1; p<=totalPages; p++){
+    const page = await pdf.getPage(p);
+    const viewport = page.getViewport({ scale: 2 });
+    const canvas = document.createElement("canvas");
+    canvas.width = Math.round(viewport.width);
+    canvas.height = Math.round(viewport.height);
+    const ctx = canvas.getContext("2d", { alpha: false });
+    ctx.fillStyle = "#ffffff";
+    ctx.fillRect(0,0,canvas.width,canvas.height);
+
+    await page.render({ canvasContext: ctx, viewport }).promise;
+
+    const opt = await canvasToOptimizedJpegDataURL(canvas, 0.82, 1700);
+    const name = `${file.name} - p${p}`;
+    const item = { name, dataUrl: opt.dataUrl, width: opt.width, height: opt.height };
+    out.push(item);
+    if(typeof onItem === "function") onItem(item);
+    if(typeof onProgress === "function") onProgress(p, totalPages);
+  }
+  return out;
+}
+
+async function readFilesAsDataURLs(fileList){
+  const files = Array.from(fileList || []);
+  const out = [];
+  let totalUnits = 0;
+  let processedUnits = 0;
+
+  // Primero contamos imágenes (los PDF se contabilizan al leer numPages)
+  files.forEach(f => {
+    const isPdf = (String(f.type || "").toLowerCase() === "application/pdf") || /\.pdf$/i.test(f.name || "");
+    if(!isPdf) totalUnits += 1;
+  });
+
+  for(const f of files){
+    const isPdf = (String(f.type || "").toLowerCase() === "application/pdf") || /\.pdf$/i.test(f.name || "");
+    if(isPdf){
+      // Carga y render PDF (cada página cuenta como 1 unidad)
+      let pdfDoc = null;
+      try{
+        if(!window.pdfjsLib) throw new Error("pdf.js no disponible");
+        const buf = await f.arrayBuffer();
+        pdfDoc = await window.pdfjsLib.getDocument({ data: buf }).promise;
+        const pages = pdfDoc.numPages || 0;
+        totalUnits += pages;
+        setAnexosProgress(processedUnits, totalUnits, "Leyendo PDF…");
+
+        for(let p=1; p<=pages; p++){
+          const page = await pdfDoc.getPage(p);
+          const viewport = page.getViewport({ scale: 2 });
+          const canvas = document.createElement("canvas");
+          canvas.width = Math.round(viewport.width);
+          canvas.height = Math.round(viewport.height);
+          const ctx = canvas.getContext("2d", { alpha: false });
+          ctx.fillStyle = "#ffffff";
+          ctx.fillRect(0,0,canvas.width,canvas.height);
+
+          await page.render({ canvasContext: ctx, viewport }).promise;
+
+          const opt = await canvasToOptimizedJpegDataURL(canvas, 0.82, 1700);
+          const name = `${f.name} - p${p}`;
+          const item = { name, dataUrl: opt.dataUrl, width: opt.width, height: opt.height };
+          out.push(item);
+          addAnexoThumb(item);
+
+          processedUnits += 1;
+          setAnexosProgress(processedUnits, totalUnits, `PDF: página ${p}/${pages}`);
+        }
+      }catch(e){
+        console.error(e);
+      }
+      continue;
+    }
+
+    // Imagen
+    try{
+      const dims = await getImageNaturalSizeFromFile(f);
+      const isLandscape = (dims.width && dims.height) ? (dims.width >= dims.height) : true;
+      const targetW = isLandscape ? 1200 : 900;
+      const targetH = isLandscape ? 800 : 1200;
+
+      let dataUrl = "";
+      try{
+        // IMPORTANTE: sin recorte -> fit: contain
+        dataUrl = await resizeImageFileToDataURL(f, targetW, targetH, {quality:0.82, fit:"contain"});
+      }catch(e){
+        dataUrl = await fileToDataURL(f);
+      }
+      const item = { name: f.name, dataUrl, width: dims.width, height: dims.height };
+      out.push(item);
+      addAnexoThumb(item);
+
+      processedUnits += 1;
+      setAnexosProgress(processedUnits, totalUnits, "Procesando imágenes…");
+    }catch(e){
+      console.error(e);
+    }
+  }
+  return out.filter(x => x && x.dataUrl);
+}
+
+function fileToDataURL(file){
+  return new Promise((resolve) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(String(reader.result || ""));
+    reader.onerror = () => resolve("");
+    reader.readAsDataURL(file);
+  });
+}
+
+async function resizeImageFileToDataURL(file, targetW, targetH, opts){
+  const o = Object.assign({ quality: 0.82, fit: "cover", background: "#ffffff" }, (opts || {}));
+  let bitmap = null;
+  if(window.createImageBitmap){
+    try{ bitmap = await createImageBitmap(file); }catch(e){ bitmap = null; }
+  }
+  if(!bitmap){
+    const url = URL.createObjectURL(file);
+    try{
+      bitmap = await new Promise((resolve, reject) => {
+        const img = new Image();
+        img.onload = () => resolve(img);
+        img.onerror = reject;
+        img.src = url;
+      });
+    } finally {
+      URL.revokeObjectURL(url);
+    }
+  }
+
+  const sw = bitmap.width || bitmap.naturalWidth || 0;
+  const sh = bitmap.height || bitmap.naturalHeight || 0;
+  if(!sw || !sh) throw new Error("No fue posible leer el tamaño de la imagen.");
+
+  const canvas = document.createElement("canvas");
+  canvas.width = targetW;
+  canvas.height = targetH;
+  const ctx = canvas.getContext("2d");
+  ctx.fillStyle = o.background;
+  ctx.fillRect(0,0,targetW,targetH);
+
+  // fit cover/contain
+  const scale = (o.fit === "contain")
+    ? Math.min(targetW / sw, targetH / sh)
+    : Math.max(targetW / sw, targetH / sh);
+
+  const dw = Math.round(sw * scale);
+  const dh = Math.round(sh * scale);
+  const dx = Math.round((targetW - dw) / 2);
+  const dy = Math.round((targetH - dh) / 2);
+
+  ctx.drawImage(bitmap, dx, dy, dw, dh);
+  return canvas.toDataURL("image/jpeg", o.quality);
+}
+
+function renderDetallePorAprendiz(){
+  const selKeys = Object.keys(state.seleccion);
+  const map = getAprMap();
+  const wrap = $("detalleWrap");
+
+  selKeys.forEach(k => ensureDetalle(k));
+
+  wrap.innerHTML = selKeys.map((k, idx) => {
+    const ap = map[k];
+    const apId = cssEscape(k);
+    const d = state.detalle[k];
+
+    const apColorClass = "ap-color-" + (idx % 10);
+
+    const objetivoPreview = buildObjetivoPMText(k);
+const tipo = String(d.tipoPM || "academico").toLowerCase();
+const isAcademico = (tipo !== "disciplinario");
+const tipoChecked = isAcademico ? "checked" : "";
+const academicoOnlyClass = isAcademico ? "" : "hidden";
+const compTbodyId = `compBody_${apId}`;
+const responsablesListId = `responsables_${apId}`;
+
+// Sugerencias predeterminadas en RESPONSABLE:
+// - Aprendiz
+// - Instructor gerente
+// - Instructor que imparte (si es diferente)
+// - Asistentes adicionales
+const responsablesOptionsHtml = (() => {
+  const imparteUp = (d.instructorImparte || "").toString().trim().toUpperCase();
+  const gerenteUp = (state.acta.instructorGerente || "").toString().trim().toUpperCase();
+  const includeImparte = !!(imparteUp && gerenteUp && imparteUp !== gerenteUp);
+
+  const roles = ["Aprendiz","Instructor gerente"]
+    .concat(includeImparte ? ["Instructor que imparte"] : [])
+    .concat(["Asistentes"]);
+
+  return roles.map(r => `<option value="${escapeHTML(r)}"></option>`).join("");
+})();
+    return `
+      <div class="ap-card ${apColorClass}" id="ap_${apId}">
+        <div class="ap-head">
+          <div>
+            <div class="ap-title-row">
+              <div class="ap-title">${idx+1}. ${escapeHTML((ap?.nombre || "").toUpperCase())}</div>
+              <span class="type-badge ${isAcademico ? "aca" : "disc"}" id="badgeTipo_${apId}">${isAcademico ? "Académico" : "Disciplinario"}</span>
+            </div>
+            <div class="ap-meta">
+              Documento: <strong>${escapeHTML(ap?.documento || "")}</strong> · Estado: <strong>${escapeHTML(ap?.estadoNorm || "")}</strong>
+            </div>
+          </div>
+          <div class="ap-actions">
+            <button class="btnMini" type="button" data-fill-default="${escapeHTML(k)}">Cargar plantilla (vacía)</button>
+          </div>
+        </div>
+
+<div class="grid">
+
+  <div class="group-title">Tipo</div>
+  <div class="field col-12">
+    <div class="switch-row">
+      <div class="pill">TIPO DE PM</div>
+      <label class="pm-switch" style="position:relative;">
+        <span class="lbl" id="lblDisc_${apId}">Disciplinario</span>
+        <input type="checkbox" id="tipoPM_${apId}" data-tipo-pm="${escapeHTML(k)}" ${tipoChecked} />
+        <span class="track"><span class="thumb"></span></span>
+        <span class="lbl" id="lblAca_${apId}">Académico</span>
+      </label>
+    </div>
+  </div>
+
+  <div class="group-sep"></div>
+
+  <div class="academico-only grid-contents ${academicoOnlyClass}" id="academicoOnly_${apId}">
+
+<div class="field col-6">
+            <label for="competenciaSel_${apId}">COMPETENCIA</label>
+            <select id="competenciaSel_${apId}" data-comp-sel="${escapeHTML(k)}"></select>
+          </div>
+          <div class="field col-6">
+            <label>RESULTADO DE APRENDIZAJE</label>
+            <div class="ra-box" id="raBox_${apId}">
+              <div class="muted">Seleccione una competencia para ver los resultados.</div>
+            </div>
+          </div>
+
+          <div class="field col-8">
+            <label for="instImparte_${apId}">IMPARTIDA POR EL INSTRUCTOR</label>
+            <div class="checkline">
+              <input type="checkbox" id="chkOtroImparte_${apId}" data-chk-imparte="${escapeHTML(k)}" />
+              <label for="chkOtroImparte_${apId}" style="display:inline;">Seleccionar otro instructor</label>
+            </div>
+            <div class="hint">Si no marca esta opción, se usará el mismo <strong>INSTRUCTOR GERENTE</strong>.</div>
+            <select id="instImparte_${apId}" data-inst-imparte="${escapeHTML(k)}" disabled></select>
+            <input id="instImparteOtro_${apId}" data-inst-imparte-otro="${escapeHTML(k)}" type="text" placeholder="Escriba el nombre (si no está en la lista)" style="display:none; margin-top:8px;" />
+          </div>
+
+          <div class="field col-4">
+            <label for="firmaImparte_${apId}">FIRMA INSTRUCTOR QUE IMPARTE (opcional)</label>
+            <div class="drop-zone" id="firmaImparteDropZone_${apId}" data-firma-drop="${escapeHTML(k)}" style="padding:12px; border-radius:12px;">
+              <input id="firmaImparte_${apId}" data-firma-imparte="${escapeHTML(k)}" type="file" accept="image/*" />
+              <div class="drop-content">
+                <small><strong>Arrastre</strong> la firma aquí o haga clic para seleccionar.</small>
+                <div class="tiny" id="firmaImparteInfo_${apId}" style="margin-top:6px;">Sin archivo seleccionado.</div>
+              </div>
+            </div>
+          </div>
+
+            <div class="group-sep"></div>
+          </div>
+
+<div class="field col-12">
+            <label for="tema_${apId}">${(String(d.tipoPM||"academico").toLowerCase()==="disciplinario") ? "MOTIVO" : "TEMA"}</label>
+            <input id="tema_${apId}" type="text" data-tema="${escapeHTML(k)}" placeholder="${(String(d.tipoPM||"academico").toLowerCase()==="disciplinario") ? "Motivo..." : "Tema..."}" value="${escapeHTML(d.tema || "")}" />
+          </div>
+          <div class="field col-12">
+            <label for="obj_${apId}">OBJETIVO(S) DE LA REUNIÓN</label>
+            <textarea id="obj_${apId}" data-objpm="${escapeHTML(k)}" readonly>${escapeHTML(objetivoPreview)}</textarea>
+          </div>
+
+<div class="group-sep"></div>
+
+
+<div class="field col-12">
+  <label>CAUSALES DEL REGLAMENTO</label>
+  <div class="causales-box" id="causalesBox_${apId}">
+    <div class="muted">Seleccione el tipo de PM para ver las causales.</div>
+  </div>
+  <input id="causalOtro_${apId}" data-causal-otro="${escapeHTML(k)}" type="text" placeholder="Otro (especifique)..." style="display:none; margin-top:8px;" />
+</div>
+
+<div class="group-sep"></div>
+
+<div class="field col-12">
+  <label for="des_${apId}">DESARROLLO</label>
+            <textarea id="des_${apId}" data-desarrollo="${escapeHTML(k)}" placeholder="Describa el desarrollo..." >${escapeHTML(d.desarrollo || "")}</textarea>
+          </div>
+          <div class="field col-12">
+            <label for="con_${apId}">CONCLUSIONES</label>
+            <textarea id="con_${apId}" data-conclusiones="${escapeHTML(k)}" placeholder="Escriba conclusiones..." >${escapeHTML(d.conclusiones || "")}</textarea>
+          </div>
+
+          <div class="group-sep"></div>
+
+<div class="field col-12">
+            <label>COMPROMISOS</label>
+            <div class="hint">Estructura: <strong>ACTIVIDAD / DECISIÓN</strong> · <strong>FECHA</strong> · <strong>RESPONSABLE</strong> (Aprendiz)</div>
+            <div style="margin-top:8px;">
+              <table class="comp-table">
+                <thead>
+                  <tr>
+                    <th>ACTIVIDAD / DECISIÓN</th>
+                    <th style="width:160px;">FECHA</th>
+                    <th style="width:260px;">RESPONSABLE</th>
+                    <th style="width:110px;text-align:center;">Acción</th>
+                  </tr>
+                </thead>
+                <tbody id="${compTbodyId}"></tbody>
+              </table>
+              <div class="btnrow" style="margin-top:10px;">
+                <button class="btn secondary" type="button" data-add-comp="${escapeHTML(k)}">+ Añadir otro</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="field col-12">
+            <label for="foto_${apId}">ANEXO FOTOGRÁFICO</label>
+            <div class="filebox">
+              <input id="foto_${apId}" type="file" accept="image/*,application/pdf" multiple data-anexos="${escapeHTML(k)}" />
+              <div class="tiny" id="fotoInfo_${apId}" style="margin-top:6px;">Sin archivos seleccionados.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+        <datalist id="${responsablesListId}">${responsablesOptionsHtml}</datalist>
+    `;
+  }).join("");
+
+  // =========================
+  // Campos por aprendiz (Competencia / Resultados / Imparte / Firma)
+  // =========================
+  const compOptsPorApr = [`<option value="">Seleccione...</option>`]
+    .concat(state.competencias.map(c => {
+      const label = c.replace(/\n/g, " / ");
+      return `<option value="${escapeHTML(c)}">${escapeHTML(label)}</option>`;
+    }))
+    .join("");
+
+  const instOptsPorApr = [`<option value="">Seleccione...</option>`]
+    .concat(state.instructores.map(n => `<option value="${escapeHTML(n)}">${escapeHTML(n)}</option>`))
+    .concat([`<option value="__OTRO__">OTRO (escribir)</option>`])
+    .join("");
+
+  const syncObjetivoYTextoPorApr = (k) => {
+    const apId = cssEscape(k);
+
+    // Actualizar objetivo (solo lectura)
+    const objTa = document.getElementById("obj_"+apId);
+    if(objTa) objTa.value = buildObjetivoPMText(k);
+
+    // Actualizar texto de DESARROLLO (solo los segmentos de competencia/resultados)
+    const desTa = document.getElementById("des_"+apId);
+    if(desTa){
+      const d = state.detalle[k] || {};
+      const tipo = String(d.tipoPM || "academico").toLowerCase();
+      if(tipo === "disciplinario") return;
+      const compUp = (d.competencia || "").toString().trim().toUpperCase() || "XXXX";
+      const resUp = (d.resultados || []).filter(Boolean).map(x => String(x).trim().toUpperCase()).filter(Boolean).join("; ") || "XXXXX";
+      let next = desTa.value || "";
+      next = next.replace(/(Correspondiente\s+a\s+la\s+competencia\s+)[^\n]*/i, `$1${compUp}`);
+      next = next.replace(/(Con\s+los\s+resultados\s+de\s+aprendizaje\s+)[^\n]*/i, `$1${resUp}`);
+      desTa.value = next;
+    }
+  };
+
+
+// =========================
+// Tipo de PM + Causales (por aprendiz)
+// =========================
+const CAUSALES_ACADEMICO = [
+  "6. Cumplir con todas las actividades de su proceso formativo, presentando las evidencias según la planeación pedagógica, guías de aprendizaje y cronograma, en los plazos o en la oportunidad que estas deban presentarse o reportarse, a través de los medios dispuestos para ello.",
+  "13. Realizar personalmente las evaluaciones, investigaciones, actividades y prácticas de formación, haciendo uso de sus conocimientos, su esfuerzo personal, creatividad y autoría propia, absteniéndose de presentar como propios, escritos, documentos, ¡deas, o resultados que no sean de su autoría.",
+  "17. Acatar las normativas y directrices establecidas por el SENA para llevar a cabo la etapa productiva, seleccionando con la debida anticipación la modalidad de esta y presentando la evidencia correspondiente de la etapa productiva dentro del plazo máximo establecido por el presente reglamento. (Solo si etapa productiva)",
+];
+const CAUSALES_DISCIPLINARIO = [
+  "3. Actuar siempre teniendo como base los principios y valores institucionales",
+  "5. Asistir con puntualidad a todas las actividades propias del proceso de formación.",
+  "11. Hacer uso apropiado de los ambientes de formación SENA y sus componentes (infraestructura física, equipos, maquinarias, herramientas, recursos didácticos, técnicos, tecnológicos y bibliográficos, materiales), disponibles para su proceso de aprendizaje, asumiendo responsabilidad legal en situaciones de utilización inadecuada, uso indebido, daño o pérdida, que deterioran los ambientes de aprendizaje y generan detrimento patrimonial.",
+  "12. Respetar los derechos de autor y demás derechos de propiedad intelectual en los materiales, trabajos, proyectos y demás documentos entregados o generados en el proceso formativo.",
+  "13. Realizar personalmente las evaluaciones, investigaciones, actividades y prácticas de formación, haciendo uso de sus conocimientos, su esfuerzo personal, creatividad y autoría propia, absteniéndose de presentar como propios, escritos, documentos, ¡deas, o resultados que no sean de su autoría.",
+  "19. Atender las indicaciones de identificación de usuarios que disponga la entidad para el ingreso a las sedes del SENA y a los ambientes de formación.",
+];
+
+const getCausalesCatalog = (tipo) => (tipo === "disciplinario" ? CAUSALES_DISCIPLINARIO : CAUSALES_ACADEMICO);
+
+const getDefaultCompromisos = (k) => {
+  const ap = getAprMap()[k] || {};
+  const apNombreUp = (ap.nombre || "").toString().trim().toUpperCase();
+  const instGerenteUp = (state.acta.instructorGerente || "").toString().trim().toUpperCase();
+  const instImparteUp = (state.detalle[k]?.instructorImparte || instGerenteUp || "").toString().trim().toUpperCase() || "[NOMBRE INSTRUCTOR QUE IMPARTE]";
+  return [
+    {
+      actividad: "SE ESTABLECE UNA NUEVA FECHA LÍMITE PARA LA ENTREGA DE LAS EVIDENCIAS PENDIENTES",
+      fecha: state.fechaISO,
+      responsable: apNombreUp
+    },
+    {
+      actividad: "REALIZAR SEGUIMIENTO POR PARTE DEL INSTRUCTOR PARA GARANTIZAR EL CUMPLIMIENTO.",
+      fecha: state.fechaISO,
+      responsable: instImparteUp
+    }
+  ];
+};
+
+const buildCausalesText = (d) => {
+  const out = [];
+  const list = (d.causales || []).map(x => String(x || "").trim()).filter(Boolean);
+  list.forEach(x => { if(x !== "__OTRO__") out.push(x); });
+  if(list.includes("__OTRO__")){
+    const ot = (d.causalOtro || "").toString().trim();
+    out.push(ot ? ot : "OTRO: ______________________________");
+  }
+  return out.join("\n");
+};
+
+const syncDesarrolloCausales = (k) => {
+  const apId = cssEscape(k);
+  const desTa = document.getElementById("des_"+apId);
+  if(!desTa) return;
+
+  ensureDetalle(k);
+  const d = state.detalle[k] || {};
+  const header = "No cumplimiento del CAPÍTULO III. Artículo 8o. Deberes del aprendiz SENA";
+  const causalesTxt = buildCausalesText(d);
+
+  let next = desTa.value || "";
+
+  const re = /(\bCAUSA\s*:\s*)([\s\S]*?)(\n\s*(?:Con\s+el\s+Tema\b|Motivo\s*:))/i;
+  if(re.test(next)){
+    next = next.replace(re, (m, p1, _p2, p3) => {
+      let body = header;
+      if(causalesTxt) body += "\n" + causalesTxt;
+      return (() => {
+       const con = (p3 || "").replace(/^\s*\n\s*/,"");
+       return "CAUSA:\n" + body + "\n" + con;
+     })();
+    });
+  }
+
+  if(next !== (desTa.value || "")){
+    desTa.value = next;
+  }
+  state.detalle[k].desarrollo = next;
+};
+
+const syncDesarrolloTipoPM = (k) => {
+  const apId = cssEscape(k);
+  const desTa = document.getElementById("des_"+apId);
+  if(!desTa) return;
+
+  ensureDetalle(k);
+  const d = state.detalle[k] || {};
+  const tipo = String(d.tipoPM || "academico").toLowerCase();
+  let next = desTa.value || "";
+
+  const temaUp = (d.tema || "").toString().trim().toUpperCase() || "XXX";
+  const ensurePunto = (txt) => {
+    const t = (txt || "").toString().trim();
+    if(!t) return "XXX.";
+    return /[.!?]$/.test(t) ? t : (t + ".");
+  };
+
+  if(tipo === "disciplinario"){
+    // Cambiar "Con el Tema ..." por "Motivo: ..."
+    const motivoLine = `Motivo: ${ensurePunto(temaUp)}`;
+
+    if(/\bMotivo\s*:/i.test(next)){
+      next = next.replace(/(Motivo\s*:\s*)[^\n]*/i, `$1${ensurePunto(temaUp)}`);
+    }else if(/\bCon\s+el\s+Tema\b/i.test(next)){
+      next = next.replace(/^\s*Con\s+el\s+Tema\s+[^\n]*\n?/im, `${motivoLine}\n`);
+    }else{
+      // Si no existe aún, insertarlo al final
+      next = (next.replace(/\s+$/,"") + "\n" + motivoLine + "\n");
+    }
+
+    // Quitar referencias a competencia/resultados
+    next = next.replace(/\s*,\s*Correspondiente\s+a\s+la\s+competencia\s+[^\n]*/ig, "");
+    next = next.replace(/^\s*Correspondiente\s+a\s+la\s+competencia\s+[^\n]*\n?/img, "");
+    next = next.replace(/^\s*Con\s+los\s+resultados\s+de\s+aprendizaje\s+[^\n]*\n?/img, "");
+  }else{
+    // Asegurar que existan las líneas de competencia/resultados
+    const compUp = (d.competencia || "").toString().trim().toUpperCase() || "XXXX";
+    const resUp = (d.resultados || []).filter(Boolean).map(x => String(x).trim().toUpperCase()).filter(Boolean).join("; ") || "XXXXX";
+
+    // Si venía de disciplinario, convertir "Motivo:" a "Con el Tema ..."
+    if(/\bMotivo\s*:/i.test(next) && !/\bCon\s+el\s+Tema\b/i.test(next)){
+      next = next.replace(/^\s*Motivo\s*:\s*[^\n]*\n?/im, `Con el Tema ${temaUp}, Correspondiente a la competencia ${compUp}\n`);
+    }
+
+    if(/Con\s+el\s+Tema\s+/i.test(next) && !/Correspondiente\s+a\s+la\s+competencia/i.test(next)){
+      next = next.replace(/(Con\s+el\s+Tema\s+)[^\n]*/i, `$1${temaUp}, Correspondiente a la competencia ${compUp}`);
+    }
+    if(!/Con\s+los\s+resultados\s+de\s+aprendizaje/i.test(next)){
+      next = next.replace(/(Con\s+el\s+Tema[^\n]*\n)/i, `$1Con los resultados de aprendizaje ${resUp}\n`);
+    }
+    // Si ya existen, actualizar solo el contenido (cuando aplica)
+    next = next.replace(/(Correspondiente\s+a\s+la\s+competencia\s+)[^\n]*/i, `$1${compUp}`);
+    next = next.replace(/(Con\s+los\s+resultados\s+de\s+aprendizaje\s+)[^\n]*/i, `$1${resUp}`);
+  }
+
+  if(next !== (desTa.value || "")){
+    desTa.value = next;
+  }
+  state.detalle[k].desarrollo = next;
+};
+
+
+const renderCausalesBox = (k) => {
+  const apId = cssEscape(k);
+  const box = document.getElementById("causalesBox_"+apId);
+  const otroInp = document.getElementById("causalOtro_"+apId);
+  if(!box) return;
+
+  ensureDetalle(k);
+  const d = state.detalle[k] || {};
+  const tipo = String(d.tipoPM || "academico").toLowerCase();
+  const catalog = getCausalesCatalog(tipo);
+
+  const selected = new Set((d.causales || []).map(x => String(x || "").trim()));
+  const isOtroSelected = selected.has("__OTRO__");
+
+  const makeItem = (val) => {
+    const v = String(val || "").trim();
+    const checked = selected.has(v) ? "checked" : "";
+    const m = v.match(/^(\d+)\.(\s*)([\s\S]+)$/);
+    if(m){
+      const num = m[1] + ".";
+      const desc = m[3];
+      return `<label class="causal-item"><input type="checkbox" data-causal="${escapeHTML(v)}" ${checked}><span class="causal-text"><span class="causal-num">${escapeHTML(num)}</span><span class="causal-desc">${escapeHTML(desc)}</span></span></label>`;
+    }
+    return `<label class="causal-item"><input type="checkbox" data-causal="${escapeHTML(v)}" ${checked}><span class="causal-text"><span class="causal-num"></span><span class="causal-desc">${escapeHTML(v)}</span></span></label>`;
+  };
+
+  const otroChecked = isOtroSelected ? "checked" : "";
+
+  if(tipo === "disciplinario"){
+    const left = catalog.slice(0,3);
+    const right = catalog.slice(3,6);
+    box.innerHTML =
+      `<div class="causales-cols"><div class="causales-col">${left.map(makeItem).join("")}</div><div class="causales-col">${right.map(makeItem).join("")}</div></div>` +
+      `<label class="causal-item"><input type="checkbox" data-causal="__OTRO__" ${otroChecked}> Otro</label>`;
+  }else{
+    box.innerHTML = catalog.map(makeItem).join("") +
+      `<label class="causal-item"><input type="checkbox" data-causal="__OTRO__" ${otroChecked}> Otro</label>`;
+  }
+
+  const sync = () => {
+    const checks = Array.from(box.querySelectorAll('input[type="checkbox"][data-causal]'));
+    const list = checks.filter(c => c.checked).map(c => (c.getAttribute("data-causal") || "").trim()).filter(Boolean);
+
+    d.causales = list;
+
+    const otroOn = list.includes("__OTRO__");
+    if(otroInp){
+      otroInp.style.display = otroOn ? "block" : "none";
+      if(!otroOn){
+        otroInp.value = "";
+        d.causalOtro = "";
+      }else{
+        d.causalOtro = (otroInp.value || d.causalOtro || "").toString();
+      }
+      otroInp.oninput = () => {
+        if((d.causales || []).includes("__OTRO__")){
+          d.causalOtro = (otroInp.value || "").toString();
+          syncDesarrolloCausales(k);
+          setPill("pillDetalle","En edición","warn");
+        }
+      };
+    }
+
+    syncDesarrolloCausales(k);
+    setPill("pillDetalle","En edición","warn");
+  };
+
+  Array.from(box.querySelectorAll('input[type="checkbox"][data-causal]')).forEach(chk => {
+    chk.addEventListener("change", sync);
+  });
+
+  if(otroInp){
+    otroInp.style.display = isOtroSelected ? "block" : "none";
+    otroInp.value = (d.causalOtro || "").toString();
+    otroInp.oninput = () => {
+      if((d.causales || []).includes("__OTRO__")){
+        d.causalOtro = (otroInp.value || "").toString();
+        syncDesarrolloCausales(k);
+        setPill("pillDetalle","En edición","warn");
+      }
+    };
+  }
+
+  // Insertar/actualizar en DESARROLLO
+  syncDesarrolloCausales(k);
+};
+
+const applyTipoPMToUI = (k) => {
+  ensureDetalle(k);
+  const d = state.detalle[k] || {};
+  const apId = cssEscape(k);
+  const tipo = String(d.tipoPM || "academico").toLowerCase();
+  const isAcademico = (tipo !== "disciplinario");
+
+  const sw = document.getElementById("tipoPM_"+apId);
+  if(sw) sw.checked = isAcademico;
+
+  const lblDisc = document.getElementById("lblDisc_"+apId);
+  const lblAca = document.getElementById("lblAca_"+apId);
+  if(lblDisc) lblDisc.classList.toggle("lbl--active", !isAcademico);
+  if(lblAca) lblAca.classList.toggle("lbl--active", isAcademico);
+
+  const acadWrap = document.getElementById("academicoOnly_"+apId);
+  if(acadWrap) acadWrap.classList.toggle("hidden", !isAcademico);
+
+  // Objetivo (solo lectura)
+  const objTa = document.getElementById("obj_"+apId);
+  if(objTa) objTa.value = buildObjetivoPMText(k);
+
+  // TEMA / MOTIVO (label + placeholder)
+  const temaLbl = document.querySelector(`label[for="tema_${apId}"]`);
+  const temaInp = document.getElementById("tema_"+apId);
+  if(temaLbl) temaLbl.textContent = isAcademico ? "TEMA" : "MOTIVO";
+  if(temaInp) temaInp.placeholder = isAcademico ? "Tema..." : "Motivo...";
+
+  // Badge de tipo en el encabezado del aprendiz
+  const badge = document.getElementById("badgeTipo_"+apId);
+  if(badge){
+    badge.textContent = isAcademico ? "Académico" : "Disciplinario";
+    badge.classList.toggle("aca", isAcademico);
+    badge.classList.toggle("disc", !isAcademico);
+  }
+
+  // Causales
+  renderCausalesBox(k);
+
+  // Desarrollo: ajustar líneas según tipo + causales
+  syncDesarrolloTipoPM(k);
+  syncDesarrolloCausales(k);
+};
+
+  function renderResultadosForCompetenciaPorApr(k){
+    const apId = cssEscape(k);
+    const sel = document.getElementById("competenciaSel_"+apId);
+    const box = document.getElementById("raBox_"+apId);
+    if(!sel || !box) return;
+
+    ensureDetalle(k);
+    const d = state.detalle[k];
+    const comp = sel.value || "";
+    d.competencia = comp;
+
+    if(!comp){
+      box.innerHTML = `<div class="muted">Seleccione una competencia para ver los resultados.</div>`;
+      d.resultados = [];
+      syncObjetivoYTextoPorApr(k);
+      return;
+    }
+
+    const list = (state.compToResultados[comp] || []);
+    if(!list.length){
+      box.innerHTML = `<div class="muted">No se encontraron resultados asociados a esta competencia.</div>`;
+      d.resultados = [];
+      syncObjetivoYTextoPorApr(k);
+      return;
+    }
+
+        const hasSaved = Array.isArray(d.resultados) && d.resultados.length > 0;
+    const selected = new Set((d.resultados || []).map(x => String(x).trim()));
+    box.innerHTML = list.map(r => {
+      const rr = String(r || "").trim();
+      const checked = (!hasSaved || selected.has(rr)) ? "checked" : "";
+      return `<label class="ra-item"><input type="checkbox" data-ra="${escapeHTML(rr)}" ${checked}> ${escapeHTML(rr)}</label>`;
+    }).join("");const syncResultados = () => {
+      const checks = Array.from(box.querySelectorAll('input[type="checkbox"][data-ra]'));
+      d.resultados = checks.filter(c => c.checked).map(c => (c.dataset.ra || "").trim()).filter(Boolean);
+      syncObjetivoYTextoPorApr(k);
+    };
+
+    box.querySelectorAll('input[type="checkbox"][data-ra]').forEach(chk => {
+      chk.addEventListener("change", () => {
+        syncResultados();
+        setPill("pillDetalle","En edición","warn");
+      });
+    });
+
+    syncResultados();
+  }
+
+  // Tipo de PM (Académico / Disciplinario) - init + bind
+wrap.querySelectorAll('input[data-tipo-pm]').forEach(sw => {
+  const k = sw.dataset.tipoPm;
+  ensureDetalle(k);
+  const d = state.detalle[k];
+
+  // estado inicial
+  const t0 = String(d.tipoPM || "academico").toLowerCase();
+  d.tipoPM = (t0 === "disciplinario") ? "disciplinario" : "academico";
+  sw.checked = (d.tipoPM !== "disciplinario");
+
+  const onChange = () => {
+    ensureDetalle(k);
+    const d = state.detalle[k];
+
+    const prevTipo = String(d.tipoPM || "academico").toLowerCase();
+    const nextTipo = sw.checked ? "academico" : "disciplinario";
+    if(prevTipo === nextTipo){
+      applyTipoPMToUI(k);
+      return;
+    }
+
+    // Backup de causales por tipo
+    const packCausales = () => ({
+      list: (d.causales || []).map(x => String(x || "").trim()).filter(Boolean),
+      otro: (d.causalOtro || "").toString()
+    });
+
+    if(prevTipo === "academico") d._causalesAcademico = packCausales();
+    if(prevTipo === "disciplinario") d._causalesDisciplinario = packCausales();
+
+    d.tipoPM = nextTipo;
+
+    // Restaurar/limpiar causales según tipo
+    if(nextTipo === "academico"){
+      if(d._causalesAcademico){
+        d.causales = (d._causalesAcademico.list || []).slice();
+        d.causalOtro = d._causalesAcademico.otro || "";
+      }else if(!(d.causales && d.causales.length)){
+        d.causales = [
+          "6. Cumplir con todas las actividades de su proceso formativo, presentando las evidencias según la planeación pedagógica, guías de aprendizaje y cronograma, en los plazos o en la oportunidad que estas deban presentarse o reportarse, a través de los medios dispuestos para ello."
+        ];
+        d.causalOtro = "";
+      }
+    }else{
+      if(d._causalesDisciplinario){
+        d.causales = (d._causalesDisciplinario.list || []).slice();
+        d.causalOtro = d._causalesDisciplinario.otro || "";
+      }else{
+        d.causales = [];
+        d.causalOtro = "";
+      }
+    }
+
+    // Compromisos: en disciplinario se dejan en blanco
+    if(nextTipo === "disciplinario"){
+      if(!d._compromisosAcademico){
+        d._compromisosAcademico = (d.compromisos || []).map(x => ({...x}));
+      }
+      d.compromisos = [];
+    }else{
+      if((!d.compromisos || !d.compromisos.length) && d._compromisosAcademico && d._compromisosAcademico.length){
+        d.compromisos = d._compromisosAcademico.map(x => ({...x}));
+      }
+      if(!d.compromisos || !d.compromisos.length){
+        d.compromisos = getDefaultCompromisos(k);
+      }
+    }
+
+    applyTipoPMToUI(k);
+    renderCompromisosTable(k);
+    setPill("pillDetalle","En edición","warn");
+  };
+
+  sw.addEventListener("change", onChange);
+
+  // aplicar visibilidad/causales al cargar
+  applyTipoPMToUI(k);
+  if(d.tipoPM === "disciplinario"){
+    d.compromisos = [];
+    renderCompromisosTable(k);
+  }
+});
+
+// Competencia (init + bind)
+  wrap.querySelectorAll('select[data-comp-sel]').forEach(sel => {
+    const k = sel.dataset.compSel;
+    ensureDetalle(k);
+
+    sel.innerHTML = compOptsPorApr;
+    sel.value = state.detalle[k].competencia || "";
+
+    sel.addEventListener("change", () => {
+      ensureDetalle(k);
+      state.detalle[k].resultados = []; // reiniciar resultados al cambiar competencia
+      renderResultadosForCompetenciaPorApr(k);
+      setPill("pillDetalle","En edición","warn");
+    });
+
+    renderResultadosForCompetenciaPorApr(k);
+  });
+
+  // Instructor que imparte (init + bind)
+  const initImparteUI = (k, chk, sel, otro) => {
+    ensureDetalle(k);
+    const d = state.detalle[k];
+
+    sel.innerHTML = instOptsPorApr;
+
+    const gerenteUp = (state.acta.instructorGerente || "").toString().trim().toUpperCase();
+    const imparteUp = (d.instructorImparte || gerenteUp || "").toString().trim().toUpperCase();
+
+    // Inicial: marcar checkbox si el imparte difiere del gerente
+    chk.checked = !!(imparteUp && gerenteUp && imparteUp !== gerenteUp);
+
+    const applySelectValue = (nameUp) => {
+      const has = Array.from(sel.options).some(o => (o.value || "").toString().trim().toUpperCase() === nameUp);
+      if(has && nameUp){
+        const opt = Array.from(sel.options).find(o => (o.value || "").toString().trim().toUpperCase() === nameUp);
+        sel.value = opt ? opt.value : nameUp;
+        otro.value = "";
+      }else{
+        sel.value = "__OTRO__";
+        otro.value = nameUp || "";
+      }
+    };
+
+    const syncImparte = () => {
+      if(!chk.checked){
+        sel.disabled = true;
+        applySelectValue(gerenteUp);
+        otro.style.display = "none";
+        d.instructorImparte = gerenteUp;
+      }else{
+        sel.disabled = false;
+        applySelectValue(imparteUp);
+        if(sel.value === "__OTRO__"){
+          otro.style.display = "block";
+        }else{
+          otro.style.display = "none";
+          otro.value = "";
+        }
+        d.instructorImparte = (sel.value === "__OTRO__") ? (otro.value || "").toString().trim().toUpperCase() : (sel.value || "").toString().trim().toUpperCase();
+      }
+
+      syncObjetivoYTextoPorApr(k);
+      // Ajuste: el compromiso de seguimiento queda a nombre del instructor seleccionado en "Impartida por el instructor"
+      try{
+        const segTxt = "REALIZAR SEGUIMIENTO POR PARTE DEL INSTRUCTOR PARA GARANTIZAR EL CUMPLIMIENTO.";
+        const resp = (d.instructorImparte || "").toString().trim().toUpperCase();
+        if(Array.isArray(d.compromisos) && resp){
+          d.compromisos.forEach(c => {
+            const act = (c && c.actividad) ? String(c.actividad).trim().toUpperCase() : "";
+            if(act === segTxt){ c.responsable = resp; }
+          });
+        }
+      }catch(e){}
+      renderCompromisosTable(k);
+    };
+
+    // listeners
+    chk.addEventListener("change", () => {
+      syncImparte();
+      setPill("pillDetalle","En edición","warn");
+    });
+
+    sel.addEventListener("change", () => {
+      if(sel.value === "__OTRO__"){
+        otro.style.display = "block";
+        otro.focus();
+      }else{
+        otro.style.display = "none";
+        otro.value = "";
+      }
+      // recalcular
+      const val = (sel.value === "__OTRO__") ? (otro.value || "") : (sel.value || "");
+      d.instructorImparte = String(val).trim().toUpperCase();
+      syncObjetivoYTextoPorApr(k);
+      renderCompromisosTable(k);
+      setPill("pillDetalle","En edición","warn");
+    });
+
+    otro.addEventListener("input", () => {
+      if(sel.value === "__OTRO__"){
+        d.instructorImparte = (otro.value || "").toString().trim().toUpperCase();
+        syncObjetivoYTextoPorApr(k);
+        renderCompromisosTable(k);
+        setPill("pillDetalle","En edición","warn");
+      }
+    });
+
+    // estado inicial
+    syncImparte();
+  };
+
+  wrap.querySelectorAll('input[data-chk-imparte]').forEach(chk => {
+    const k = chk.dataset.chkImparte;
+    const apId = cssEscape(k);
+    const sel = document.getElementById("instImparte_"+apId);
+    const otro = document.getElementById("instImparteOtro_"+apId);
+    if(!sel || !otro) return;
+    initImparteUI(k, chk, sel, otro);
+  });
+
+  // Firma instructor que imparte (por aprendiz)
+  wrap.querySelectorAll('input[data-firma-imparte]').forEach(inp => {
+    inp.addEventListener("change", async () => {
+      const k = inp.dataset.firmaImparte;
+      ensureDetalle(k);
+      const apId = cssEscape(k);
+      const info = document.getElementById("firmaImparteInfo_"+apId);
+      const f = inp.files && inp.files[0];
+      if(!f){
+        state.detalle[k].firmaImparte = null;
+        if(info) info.textContent = "Sin archivo seleccionado.";
+        return;
+      }
+      const dataUrl = await fileToDataURL(f);
+      state.detalle[k].firmaImparte = dataUrl || null;
+      if(info) info.textContent = dataUrl ? `Cargada: ${f.name}` : "No se pudo leer la firma.";
+      setPill("pillDetalle","En edición","warn");
+    });
+  });
+
+  // Drag & drop firma (por aprendiz)
+  wrap.querySelectorAll('[data-firma-drop]').forEach(zone => {
+    const k = zone.dataset.firmaDrop;
+    const apId = cssEscape(k);
+    const input = document.getElementById("firmaImparte_"+apId);
+    if(!input) return;
+
+    const setFromDrop = (files) => {
+      if(!files || files.length === 0) return;
+      const dt = new DataTransfer();
+      dt.items.add(files[0]);
+      input.files = dt.files;
+      input.dispatchEvent(new Event("change", { bubbles: true }));
+    };
+
+    const prevent = (e) => { e.preventDefault(); e.stopPropagation(); };
+    ["dragenter","dragover"].forEach(evt => {
+      zone.addEventListener(evt, (e) => {
+        prevent(e);
+        zone.classList.add("drop-zone--active");
+      });
+    });
+    ["dragleave","dragend","drop"].forEach(evt => {
+      zone.addEventListener(evt, (e) => {
+        prevent(e);
+        if(evt === "drop"){
+          zone.classList.remove("drop-zone--active");
+          setFromDrop(e.dataTransfer?.files);
+        }else{
+          zone.classList.remove("drop-zone--active");
+        }
+      });
+    });
+  });
+
+
+  // Bind tema
+  wrap.querySelectorAll('input[data-tema]').forEach(inp => {
+    inp.addEventListener("input", () => {
+      const k = inp.dataset.tema;
+      ensureDetalle(k);
+      const v = (inp.value || "").toUpperCase();
+      state.detalle[k].tema = v;
+
+      // Actualizar objetivo (solo lectura) arriba del tema
+      const apId = cssEscape(k);
+      const objTa = document.getElementById("obj_"+apId);
+      if(objTa) objTa.value = buildObjetivoPMText(k);
+
+      // Si el desarrollo conserva la plantilla (Tema XXX), reemplazar XXX por el tema
+      const desTa = document.getElementById("des_"+apId);
+      if(desTa){
+        const cur = desTa.value || "";
+        let next = cur;
+const tipo = String((state.detalle[k] && state.detalle[k].tipoPM) || "academico").toLowerCase();
+
+if(tipo === "disciplinario"){
+  const vDot = (() => {
+    const t = (v || "XXX").trim();
+    return /[.!?]$/.test(t) ? t : (t + ".");
+  })();
+
+  if(/\bMotivo\s*:/i.test(cur)){
+    next = cur.replace(/(Motivo\s*:\s*)[^\n]*/i, `$1${vDot}`);
+  }else if(/\bCon\s+el\s+Tema\b/i.test(cur)){
+    next = cur.replace(/^\s*Con\s+el\s+Tema\s+[^\n]*\n?/im, `Motivo: ${vDot}\n`);
+  }
+}else{
+  // Reemplaza el texto entre "Con el Tema" y ", Correspondiente" por el tema digitado (sin afectar el resto del párrafo)
+  next = next.replace(/(Con el Tema\s+).*?(,?\s*Correspondiente)/i, `$1${v || "XXX"}$2`);
+  // Fallback: marcador antiguo "XXX" (por si no existe ", Correspondiente" en el texto)
+  if(next === cur){
+    next = cur.replace(/Con el Tema\s+XXX\b/gi, `Con el Tema ${v || "XXX"}`);
+  }
+  // Fallback: reemplazar el texto del tema hasta el primer separador (coma o punto)
+  if(next === cur){
+    next = cur.replace(/(Con el Tema\s+)[^,\.\n]*/i, `$1${v || "XXX"}`);
+  }
+}
+        if(next !== cur){
+          desTa.value = next;
+          state.detalle[k].desarrollo = next;
+        }
+      }
+    });
+  });
+
+  // Bind textareas
+  wrap.querySelectorAll("textarea[data-desarrollo]").forEach(ta => {
+    ta.addEventListener("input", () => {
+      const k = ta.dataset.desarrollo;
+      ensureDetalle(k);
+      const start = ta.selectionStart, end = ta.selectionEnd;
+      state.detalle[k].desarrollo = (ta.value || "").toUpperCase();
+      if(typeof start === "number" && typeof end === "number") ta.setSelectionRange(start,end);
+    });
+  });
+  wrap.querySelectorAll("textarea[data-conclusiones]").forEach(ta => {
+    ta.addEventListener("input", () => {
+      const k = ta.dataset.conclusiones;
+      ensureDetalle(k);
+      const start = ta.selectionStart, end = ta.selectionEnd;
+      state.detalle[k].conclusiones = (ta.value || "").toUpperCase();
+      if(typeof start === "number" && typeof end === "number") ta.setSelectionRange(start,end);
+    });
+  });
+
+  // Bind compromisos add
+  wrap.querySelectorAll("button[data-add-comp]").forEach(btn => {
+    btn.addEventListener("click", () => addCompromisoRow(btn.dataset.addComp));
+  });
+
+  // Bind plantilla vacía
+  wrap.querySelectorAll("button[data-fill-default]").forEach(btn => {
+    btn.addEventListener("click", () => {
+      const k = btn.dataset.fillDefault;
+      ensureDetalle(k);
+      // no forzar texto fijo, solo asegurar mínimo para que el usuario escriba
+      if(!state.detalle[k].compromisos.length){
+        addCompromisoRow(k);
+      }else{
+        renderCompromisosTable(k);
+      }
+      setPill("pillDetalle","En edición","warn");
+    });
+  });
+
+  // Bind anexos
+  wrap.querySelectorAll('input[type="file"][data-anexos]').forEach(inp => {
+    inp.addEventListener("change", async () => {
+      const k = inp.dataset.anexos;
+      ensureDetalle(k);
+      const apId = cssEscape(k);
+      const info = $("fotoInfo_"+apId);
+      const files = inp.files;
+      if(!files || !files.length){
+        state.detalle[k].anexos = [];
+        if(info) info.textContent = "Sin archivos seleccionados.";
+        return;
+      }
+      openAnexosOverlay("Cargando anexos…");
+      if(info) info.textContent = "Procesando anexos (imágenes/PDF)…";
+      const anexos = await readFilesAsDataURLs(files);
+      state.detalle[k].anexos = anexos;
+      state.detalle[k].anexosFotos = anexos; // compatibilidad con exportación
+      setAnexosProgress(anexos.length, Math.max(1, anexos.length), "Completado");
+      const titleEl = $("anexosModalTitle");
+      if(titleEl) titleEl.textContent = `Anexos cargados: ${anexos.length}`;
+      if(info) info.textContent = `${anexos.length} anexo(s) listo(s).`;
+    });
+  });
+
+  // Render compromisos tables (post)
+  selKeys.forEach(k => renderCompromisosTable(k));
+
+  setPill("pillDetalle", "Listo para finalizar", "ok");
+}
+
+/* =========================
+   Generación Word (1 por aprendiz)
+========================= */
+
+/* =========================
+   Generación Word (1 por aprendiz) - Formato AJusto 1
+========================= */
+function parseISODate(iso){
+  const v = (iso || "").trim();
+  if(!v) return null;
+  const parts = v.split("-").map(Number);
+  if(parts.length !== 3) return null;
+  const [y,m,d] = parts;
+  if(!y || !m || !d) return null;
+  return new Date(y, m - 1, d);
+}
+
+function formatFechaLarga(iso){
+  const dt = parseISODate(iso);
+  if(!dt) return (iso || "").trim() || "-";
+  const dias = ["domingo","lunes","martes","miércoles","jueves","viernes","sábado"];
+  const meses = ["Enero","Febrero","Marzo","Abril","Mayo","Junio","Julio","Agosto","Septiembre","Octubre","Noviembre","Diciembre"];
+  const weekday = dias[dt.getDay()] || "";
+  const day = dt.getDate();
+  const month = meses[dt.getMonth()] || "";
+  const year = dt.getFullYear();
+  return `${weekday}, ${day} de ${month} ${year}`;
+}
+
+function formatHora(hhmm){
+  return (hhmm || "").trim() || "-";
+}
+
+function toFechaDMY(iso){
+  const v = (iso || "").trim();
+  if(!v) return "-";
+  const parts = v.split("-");
+  if(parts.length !== 3) return v;
+  const [y,m,d] = parts;
+  return `${d}/${m}/${y}`;
+}
+
+function buildActaTimestamp(d){
+  const now = new Date();
+  const datePart = (() => {
+    const src = (d && d.fecha && d.fecha.trim()) ? d.fecha.trim() : `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,"0")}-${String(now.getDate()).padStart(2,"0")}`;
+    const [y,m,d2] = src.split("-");
+    if(!y || !m || !d2) return `${String(now.getDate()).padStart(2,"0")}${String(now.getMonth()+1).padStart(2,"0")}${now.getFullYear()}`;
+    return `${d2}${m}${y}`;
+  })();
+  const timePart = (() => {
+    const hhmm = (d && d.horaInicio) ? (d.horaInicio || "").trim() : "";
+    const parts = hhmm.split(":");
+    const hh = parts[0] ? parts[0].padStart(2,"0") : String(now.getHours()).padStart(2,"0");
+    const mm = parts[1] ? parts[1].padStart(2,"0") : String(now.getMinutes()).padStart(2,"0");
+    const ss = String(now.getSeconds()).padStart(2,"0");
+    return `${hh}${mm}${ss}`;
+  })();
+  return `${datePart}${timePart}`;
+}
+
+function buildWordHtmlTemplate(d){
+      const safe = (value) => {
+        if(value === null || value === undefined) return "";
+        const text = typeof value === "string" ? value.trim() : String(value);
+        return escapeHTML(text);
+      };
+      const upper = (value) => safe(value).toUpperCase();
+      const toMultiline = (value, fallback = "&nbsp;") => {
+        const text = safe(value);
+        if(!text) return fallback;
+        return text.replace(/\n/g, "<br>");
+      };
+      const nombrePrograma = upper(d.programaFormacion);
+      const codigoFicha = safe(d.numFicha);
+      const ciudad = upper((d.ciudad || "IBAGUÉ").trim());
+      const fechaHoy = formatFechaLarga(d.fecha);
+
+      // Hora inicio: si no viene en el dataset, usar hora del sistema con minutos (HH:MM)
+      const nowSys = new Date();
+      const hhSys = String(nowSys.getHours()).padStart(2,"0");
+      const mmSys = String(nowSys.getMinutes()).padStart(2,"0");
+      const horaInicio = (() => {
+        const raw = (d.horaInicio || "").toString().trim();
+        if(!raw) return `${hhSys}:${mmSys}`;
+        if(raw.includes(":")){
+          const [h, m] = raw.split(":");
+          const hh = (h || hhSys).toString().padStart(2,"0");
+          const mm = (m || mmSys).toString().padStart(2,"0");
+          return `${hh}:${mm}`;
+        }
+        const hh = raw.padStart(2,"0");
+        return `${hh}:${mmSys}`;
+      })();
+
+      const horaFin = formatHora(d.horaFin);
+      const instGerente = upper((d.instGerente || "").trim());
+      const instTransversal = upper((d.instTransversal || "").trim());
+      const aprProtocolante = upper(d.aprProtocolante || "");
+      const competencia = upper(d.competencia);
+      const resultadosApr = (d.resultadosAprendizaje || []).filter(Boolean);
+      const resultadosLine = resultadosApr.length
+        ? resultadosApr.map(r => `${safe(r)}`).join(" / ")
+        : "&nbsp;";
+      const ambiente = upper(d.ambienteFormacion || "");
+      const instructorGerente = instGerente;
+      const codigoActa = buildActaTimestamp(d);
+      const senaLogoUrl = "https://i.ibb.co/VpwBHTrw/Logosimbolo-SENA-PRINCIPAL-1.png";
+      
+const firmaInstructorDataUrl = (d.firmaInstructor || "").toString().trim();
+const firmaInstructorHtml = firmaInstructorDataUrl
+  ? `<img src="${safe(firmaInstructorDataUrl)}" alt="Firma Instructor" style="height:1.5cm !important; max-height:1.5cm !important; width:auto !important;" height="57" />`
+  : "&nbsp;";
+const firmaImparteDataUrl = (d.firmaImparte || "").toString().trim();
+const firmaImparteHtml = firmaImparteDataUrl
+  ? `<img src="${safe(firmaImparteDataUrl)}" alt="Firma Instructor" style="height:1.5cm !important; max-height:1.5cm !important; width:auto !important;" height="57" />`
+  : "&nbsp;";
+
+      const coordinadorAcademico = safe(d.coordinadorAcademico || "");
+      const aprendizVocero = safe(d.aprendizVocero || "");
+      const temaPrincipal = upper(d.temaPrincipal || "");
+      const tipoPM = String(d.tipoPM || "academico").toLowerCase();
+      const nombreReunionPrefix = (tipoPM === "disciplinario")
+        ? "Concertación de Plan de Mejoramiento Disciplinario del Aprendiz"
+        : "Suscripción de Plan de Mejoramiento Académico del Aprendiz";
+      const compromisosExtra = (d.compromisos || []).filter(c => c && (c.actividad || c.accion || c.decision));
+      const aprMatriculadosRaw = (d.aprMatriculados || "").toString().trim();
+      const cantFaltaronRaw = (d.cantFaltaron || "").toString().trim();
+      const aprMatriculadosNum = aprMatriculadosRaw === "" ? NaN : Number(aprMatriculadosRaw);
+      const cantFaltaronNum = cantFaltaronRaw === "" ? NaN : Number(cantFaltaronRaw);
+      const asistentesPresentesValue =
+        Number.isFinite(aprMatriculadosNum) && Number.isFinite(cantFaltaronNum)
+          ? aprMatriculadosNum - cantFaltaronNum
+          : null;
+      const asistentesPresentesDisplay = Number.isFinite(asistentesPresentesValue)
+        ? asistentesPresentesValue
+        : "-";
+      const aprMatriculadosDisplay = aprMatriculadosRaw || "-";
+      const cantFaltaronDisplay = cantFaltaronRaw || "-";
+      const reflexHtml = toMultiline(d.reflexionInicial);
+      const actividadesHtml = toMultiline(d.actividadesDesarrolladas).replace(/\bCAUSA\s*:/gi, "<strong>CAUSA:</strong>");
+      const conclusionesHtml = toMultiline(d.conclusiones);
+      const nombresFaltaronList = (d.nombresFaltaron || "")
+        .split(/\r?\n/)
+        .map(s => s.trim())
+        .filter(Boolean);
+      const nombresFaltaronSorted = [...nombresFaltaronList].sort((a, b) =>
+        a.localeCompare(b, "es", { sensitivity: "base" })
+      );
+      const nombresFaltaronHtml = nombresFaltaronSorted.length
+        ? nombresFaltaronSorted.map(escapeHTML).join(", ")
+        : "-";
+      const anexos = (d.anexosFotos || [])
+        .filter(f => f && f.dataUrl)
+        .map((f, idx) => {
+          const label = escapeHTML(f.name || `Foto ${idx + 1}`);
+          const ow = Number(f.width) || 0;
+          const oh = Number(f.height) || 0;
+          const MAX_W_PX = 340; // ~9cm a 96dpi
+          const MAX_H_PX = 378; // ~10cm a 96dpi
+          let wAttr = "";
+          let hAttr = "";
+          let sizeStyle = "max-width:9cm !important; max-height:10cm !important; width:auto !important; height:auto !important;";
+          if(ow > 0 && oh > 0){
+            const s = Math.min(1, MAX_W_PX / ow, MAX_H_PX / oh);
+            const dw = Math.max(1, Math.round(ow * s));
+            const dh = Math.max(1, Math.round(oh * s));
+            wAttr = ` width="${dw}"`;
+            hAttr = ` height="${dh}"`;
+            sizeStyle = `width:${dw}px !important; height:${dh}px !important; max-width:9cm !important; max-height:10cm !important;`;
+          }
+          return `<div class="attachment"><div class="attachment-label">${label}</div><img src="${f.dataUrl}" alt="${label}"${wAttr}${hAttr} style="${sizeStyle} object-fit:cover; display:block; margin:0 auto;" /></div>`;
+        });
+      const anexosHtml = anexos.length
+        ? `<div class="section-title" style="margin-top:18px;">Anexos fotográficos</div><div class="attachments">${anexos.join("")}</div>`
+        : `<div class="section-title" style="margin-top:18px;">Anexos fotográficos</div><p>Sin anexos fotográficos.</p>`;
+      const responsableCompromisos = (aprProtocolante || `APRENDIZ FICHA ${codigoFicha || ""}`).trim();
+      const compromisosBase = [];
+      const compromisosBaseRowsHtml = "";
+const compromisosAdicionalesRowsHtml = compromisosExtra.length
+        ? compromisosExtra
+            .map(c => {
+              const act = (c.actividad || c.accion || c.decision || "").toString().trim();
+              const fechaC = (c.fecha || "").toString().trim();
+              const fechaOut = fechaC ? formatFechaLarga(fechaC) : (fechaHoy || "-");
+              const resp = upper((c.responsable || aprProtocolante || "").toString().trim());
+              
+const firmaUrl = (instructorGerente && resp === instructorGerente && firmaInstructorDataUrl)
+  ? firmaInstructorDataUrl
+  : ((instTransversal && resp === instTransversal && firmaImparteDataUrl) ? firmaImparteDataUrl : "");
+const firmaHtml = firmaUrl
+  ? `<img src="${safe(firmaUrl)}" alt="Firma" style="height:1.5cm !important; max-height:1.5cm !important; width:auto !important;" height="57" />`
+  : "&nbsp;";
+              return `
+                <tr>
+                  <td colspan="10" style="height:28px;">${escapeHTML(act)}</td>
+                  <td colspan="2" style="height:28px; text-align:center;">${escapeHTML(fechaOut || "-")}</td>
+                  <td colspan="5" style="height:28px;">${escapeHTML(resp || "-")}</td>
+                  <td colspan="3" style="height:28px; text-align:center;">${firmaHtml}</td>
+                </tr>
+              `;
+            })
+            .join("")
+        : `
+          <tr>
+            <td colspan="10" style="height:28px;">Sin compromisos.</td>
+            <td colspan="2" style="height:28px; text-align:center;">${fechaHoy || "&nbsp;"}</td>
+            <td colspan="5" style="height:28px;">${responsableCompromisos}</td>
+            <td colspan="3" style="height:28px;"></td>
+          </tr>
+        `;
+const compromisosTablaHtml = `
+        ${compromisosAdicionalesRowsHtml}
+      `;
+const asistentesAdicionales = (d.asistentesAdicionales || [])
+        .filter(a => a && (a.nombre || a.cargo));
+
+      const sameGerenteImparte = (instGerente && instTransversal && instGerente === instTransversal);
+
+      const gerenteRow = `
+        <tr>
+          <td colspan="5" style="padding:8px; font-weight:700; width:25%;">${instGerente || "&nbsp;"}</td>
+          <td colspan="4" style="padding:8px; border:1px solid #000; width:20%;">${sameGerenteImparte ? "INSTRUCTOR GERENTE DE PROYECTO / INSTRUCTOR DE LA COMPETENCIA" : "INSTRUCTOR GERENTE DE PROYECTO"}</td>
+          <td colspan="2" style="border:1px solid #000;"></td>
+          <td colspan="5" style="border:1px solid #000; width:25%;"></td>
+          <td colspan="4" style="border:1px solid #000; width:20%; text-align:center;">${firmaInstructorHtml}</td>
+        </tr>
+      `;
+
+      const instructorRow = sameGerenteImparte ? "" : `
+        <tr>
+          <td colspan="5" style="padding:8px; font-weight:700; width:25%;" id="instTransversal">${instTransversal || "&nbsp;"}</td>
+          <td colspan="4" style="padding:8px; border:1px solid #000; width:20%;">INSTRUCTOR DE LA COMPETENCIA</td>
+          <td colspan="2" style="border:1px solid #000;"></td>
+          <td colspan="5" style="border:1px solid #000; width:25%;"></td>
+          <td colspan="4" style="border:1px solid #000; width:20%; text-align:center;">${firmaImparteHtml}</td>
+        </tr>
+      `;
+
+      const aprendizRow = `
+        <tr>
+          <td colspan="5" style="padding:8px; font-weight:700; width:25%;" id="aprProtocolante">${aprProtocolante || "&nbsp;"}</td>
+          <td colspan="4" style="padding:8px; border:1px solid #000; width:20%;">APRENDIZ</td>
+          <td colspan="2" style="border:1px solid #000;"></td>
+          <td colspan="5" style="border:1px solid #000; width:25%;"></td>
+          <td colspan="4" style="border:1px solid #000; width:20%;"></td>
+        </tr>
+      `;
+
+      const asistentesBaseRows = `${gerenteRow}${instructorRow}${aprendizRow}`;
+
+      const asistentesAdicionalesRows = asistentesAdicionales
+        .map(a => {
+          const nombre = (a.nombre || "");
+          const cargo = (a.cargo || "");
+          return `
+            <tr class="assist-item">
+            <td colspan="5" style="padding:8px; font-weight:700; width:25%;">${upper(nombre) || "&nbsp;"}</td>
+            <td colspan="4" style="padding:8px; border:1px solid #000; width:20%;">${upper(cargo) || "&nbsp;"}</td>
+            <td colspan="2" style="border:1px solid #000;"></td>
+            <td colspan="5" style="border:1px solid #000;"></td>
+            <td colspan="4" style="border:1px solid #000;"></td>
+            </tr>
+          `;
+        })
+        .join("");
+
+      const asistentesRowsHtml = `${asistentesBaseRows}${asistentesAdicionalesRows}`;
+      const asistentesPresenteSuffix = Number.isFinite(asistentesPresentesValue)
+        ? ` = ${asistentesPresentesDisplay}`
+        : "";
+
+      const quorumHtml = (() => {
+        const lines = [];
+        lines.push(`<div style="margin-bottom:4px;">Instructor Gerente de Proyecto: ${instGerente || "&nbsp;"}</div>`);
+        lines.push(`<div style="margin-bottom:4px;">Instructor Que imparte la Competencia: ${instTransversal || "&nbsp;"}</div>`);
+        lines.push(`<div style="margin-bottom:4px;">Aprendiz ${aprProtocolante || "&nbsp;"}</div>`);
+        if(asistentesAdicionales.length){
+          const extras = asistentesAdicionales.map(a => {
+            const nombre = upper(a.nombre || "");
+            const cargo = upper(a.cargo || "");
+            return `${nombre || "&nbsp;"}${cargo ? " - " + cargo : ""}`;
+          });
+          lines.push(`<div style="margin-top:8px;">${extras.join("<br>")}</div>`);
+        }
+        return lines.join("");
+      })();
+
+      const contenidoHTML = `
+<!DOCTYPE html>
+<html xmlns:o="urn:schemas-microsoft-com:office:office"
+      xmlns:w="urn:schemas-microsoft-com:office:word"
+      xmlns="http://www.w3.org/TR/REC-html40">
+  <head>
+    <meta charset="utf-8">
+    <title>Acta Comité</title>
+
+    
+
+    <style>
+      @page Section1 {
+        margin-top: 20mm;
+        margin-right: 15mm;
+        margin-bottom: 20mm;
+        margin-left: 15mm;
+        mso-header: h1;
+        mso-header-margin: 10mm;
+        mso-footer: f1;
+        mso-footer-margin: 10mm;
+        mso-title-page: no;
+        mso-paper-source: 0;
+      }
+      div.Section1 { page:Section1; }
+      body {
+        font-family: 'Roboto', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+        font-size: 10pt;
+      }
+      table.acta-encabezado {
+        width: 100%;
+        border-collapse: collapse;
+      }
+      table.acta-encabezado,
+      table.acta-encabezado td {
+        border: 1px solid #000;
+      }
+      table.acta-encabezado td {
+        padding: 6px 8px;
+        font-size: 9pt;
+        vertical-align: top;
+      }
+      .Section1 table {
+        margin-left: auto;
+        margin-right: auto;
+      }
+      .lista-acta {
+        margin: 0;
+        list-style-position: outside;
+        padding-left: 18px;
+      }
+      .titulo-1 {
+        font-weight: bold;
+        font-size: 12pt;
+        margin: 8px 0 4px;
+      }
+      .contenido-item {
+        font-size: 10pt;
+        margin: 4px 0 8px;
+        padding-left: 12pt;
+        font-weight: normal;
+      }
+      #actividadesDesarrolladas{ text-align:justify; }
+      #actividadesDesarrolladas *{ text-align:justify; }
+      /* Mayúsculas para campos requeridos */
+      #programaFormacion,
+      #competencia,
+      #instGerente,
+      #instTransversal,
+      #ciudad,
+      #ambienteFormacion,
+      #aprProtocolante,
+      .assist-item {
+        text-transform: uppercase;
+        font-weight: 700;
+        color: #00324D;
+        letter-spacing: .04em;
+      }
+      .acta-titulo {
+        text-align: center;
+        font-weight: bold;
+      }
+      p.MsoHeader, p.MsoFooter {
+        text-align: center;
+        font-size: 8pt;
+        margin: 0;
+        font-family: 'Roboto', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      }
+      .tabla-compromisos {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 6px;
+      }
+      .tabla-compromisos td {
+        border: 1px solid #000;
+        padding: 6px;
+        font-size: 9pt;
+      }
+      .tabla-maestra {
+        width: 100%;
+        border-collapse: collapse;
+        table-layout: fixed;
+        mso-table-layout-alt: fixed;
+        mso-table-lspace: 0pt;
+        mso-table-rspace: 0pt;
+        border: 1px solid #000;
+      }
+      .tabla-maestra td,
+      .tabla-maestra th {
+        border: 1px solid #000;
+        padding: 6px;
+      }
+      .tabla-maestra th {
+        background: #f3f4f6;
+        font-weight: bold;
+        text-align: center;
+      }
+      .attachments {
+        margin-top: 12px;
+        display: flex;
+        flex-direction: column;
+        gap: 18px;
+      }
+      .attachment {
+        border: 1px solid #bbb;
+        padding: 8px;
+        margin-top: 12px;
+        background: #fff;
+        width: 100%;
+      }
+      .attachment-name {
+        font-weight: bold;
+        margin-bottom: 6px;
+      }
+      .attachment img {
+        width: 9cm;
+        max-width: 100%;
+        height: auto;
+        max-height: 10cm;
+        border: 1px solid #bbb;
+        display: block;
+        margin: 0 auto;
+      }
+      @media print {
+  @page { size: Letter; margin: 20mm 15mm 20mm 15mm; }
+  body { -webkit-print-color-adjust: exact; print-color-adjust: exact; margin-top: 30mm; margin-bottom: 20mm; }
+  #h1 { position: fixed; top: 0; left: 0; right: 0; }
+  #f1 { position: fixed; bottom: 0; left: 0; right: 0; }
+        .attachments { display: block; }
+        .attachment {
+          display: inline-block;
+          vertical-align: top;
+          width: 32%;
+          break-inside: avoid;
+          page-break-inside: avoid;
+        }
+        .attachment img {
+          break-inside: avoid;
+          page-break-inside: avoid;
+        }
+      }
+
+      #programaFormacion,
+      #numFicha,
+      #instGerente,
+      #instTransversal,
+      #competencia,
+      #ambienteFormacion,
+      #ciudad,
+      #temaPrincipal,
+      #aprProtocolante,
+      #nombresFaltaron {
+        font-weight: 700;
+        text-transform: uppercase;
+        color: #00324D;
+      }
+      .assist-item td {
+        font-weight: 700;
+        text-transform: uppercase;
+        color: #00324D;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="Section1">
+      <table class="tabla-maestra">
+        <tr>
+          <td class="acta-titulo" colspan="20">ACTA No. ${codigoActa}</td>
+        </tr>
+        <tr>
+          <td colspan="20">
+            <strong>NOMBRE DEL COMITÉ O DE LA REUNIÓN:</strong><br>
+            ${nombreReunionPrefix} <span style="font-weight:bold; color:#00324D;">${aprProtocolante || "&nbsp;"}</span> del programa de formación <span id="programaFormacion">${nombrePrograma || "&nbsp;"}</span>; Ficha: <span id="numFicha">${codigoFicha || "&nbsp;"}</span><br>
+            Instructor gerente <span id="instGerente">${instructorGerente || "&nbsp;"}</span><br>
+</td>
+        </tr>
+        <tr>
+          <td colspan="5"><strong>CIUDAD Y FECHA:</strong></td>
+          <td colspan="5">
+            <span id="ciudad">${ciudad || "&nbsp;"}</span>,<br>
+            <span style="font-weight:bold; color:#00324D;">${fechaHoy}</span>
+          </td>
+          <td colspan="5">
+            <strong>HORA INICIO:</strong><br>
+            <span style="font-weight:bold; color:#00324D;">${horaInicio}</span>
+          </td>
+          <td colspan="5">
+            <strong>HORA FIN:</strong><br>
+            <span style="font-weight:bold; color:#00324D;">${horaFin}</span>
+          </td>
+        </tr>
+        <tr>
+          <td colspan="5"><strong>LUGAR Y/O ENLACE:</strong></td>
+          <td colspan="5"><span id="ambienteFormacion">${ambiente || "&nbsp;"}</span></td>
+          <td colspan="10">
+            <strong>COMERCIO Y SERVICIOS</strong><br>
+            <strong>SENA REGIONAL TOLIMA</strong>
+          </td>
+        </tr>
+        <tr>
+          <td colspan="20">
+            <strong>AGENDA O PUNTOS PARA DESARROLLAR:</strong>
+            <ol class="lista-acta">
+              <li>Verificación del quorum</li>
+              <li>Concertación plan de mejoramiento</li>
+              <li>Conclusiones</li>
+              <li>Compromisos</li>
+              <li>Anexos</li>
+            </ol>
+          </td>
+        </tr>
+        <tr>
+          <td colspan="20">
+            <strong>OBJETIVO(S) DE LA REUNIÓN:</strong><br>
+            Concertar plan de mejoramiento del tema <span style="font-weight:bold;">${temaPrincipal || "&nbsp;"}</span> por bajo rendimiento académico en la Competencia <span style="font-weight:bold;">${competencia || "&nbsp;"}</span> Impartidas por el instructor <span style="font-weight:bold;">${instTransversal || "&nbsp;"}</span>
+          </td>
+        </tr>
+        <tr>
+          <td colspan="20" class="acta-titulo">DESARROLLO DE LA REUNIÓN</td>
+        </tr>
+        <tr>
+          <td colspan="20">
+            <ol class="lista-acta">
+              <li class="titulo-1">
+                Verificación del quorum
+                <div class="contenido-item" id="quorumInfo">
+                  ${quorumHtml}
+                </div>
+              </li>
+              <li class="titulo-1">
+                Concertación plan de mejoramiento
+                <div class="contenido-item" id="actividadesDesarrolladas" style="text-align:justify;">
+                  ${actividadesHtml}
+                </div>
+              </li>
+            </ol>
+          </td>
+        </tr>
+        <tr>
+          <td colspan="20" class="acta-titulo">CONCLUSIONES</td>
+        </tr>
+        <tr>
+          <td colspan="20" style="height:120px; vertical-align:top;"><div class="contenido-item" id="conclusiones">${conclusionesHtml}</div></td>
+        </tr>
+              <tr>
+                  <td colspan="20" style="text-align:center; font-weight:700; background:#f3f4f6;">
+                    ESTABLECIMIENTO Y ACEPTACIÓN DE COMPROMISOS
+                  </td>
+                </tr>
+                <tr>
+                  <td colspan="10" style="font-weight:900; text-align:center;">ACTIVIDAD / DECISIÓN</td>
+                  <td colspan="2" style="font-weight:600; text-align:center;">FECHA</td>
+                  <td colspan="5" style="font-weight:300; text-align:center;">RESPONSABLE</td>
+                  <td colspan="3" style="font-weight:300; text-align:center; width:15%;">FIRMA O PARTICIPACIÓN VIRTUAL</td>
+                </tr>
+              ${compromisosTablaHtml}
+              <tr>
+                  <td colspan="20" style="text-align:center; font-weight:700; background:#f3f4f6;">
+                    DE: ASISTENTES Y APROBACIÓN DECISIONES
+                  </td>
+                </tr>
+                <tr>
+                  <td colspan="5" style="font-weight:700; text-align:center; width:25%;">NOMBRE</td>
+                  <td colspan="4" style="font-weight:700; text-align:center; width:20%;">DEPENDENCIA/ EMPRESA</td>
+                  <td colspan="2" style="font-weight:700; text-align:center; width:10%;">APRUEBA (SI/NO)</td>
+                  <td colspan="5" style="font-weight:700; text-align:center; width:25%;">OBSERVACIÓN</td>
+                  <td colspan="4" style="font-weight:700; text-align:center; width:20%;">FIRMA O PARTICIPACIÓN VIRTUAL</td>
+                </tr>
+              ${asistentesRowsHtml}
+              <tr>
+                  <td colspan="20" style="padding:8px; text-align:justify; font-size:9pt;">
+                    De acuerdo con La Ley 1581 de 2012, Protección de Datos Personales, el Servicio Nacional de Aprendizaje SENA, se compromete a garantizar la seguridad y protección de los datos personales que se encuentran almacenados en este documento.
+                  </td>
+                </tr>
+                <tr>
+                  <td colspan="20" style="padding:8px; text-align:center; font-weight:bold; ">
+                    ANEXOS
+                    ${anexosHtml}
+                  </td>
+                    <div style="mso-element:header" id="h1">
+        <p class="MsoHeader">
+          <img src="${senaLogoUrl}" alt="Logo SENA" style="height:24px; display:block; margin:0 auto;">
+        </p>
+      </div>
+      <div style="mso-element:footer" id="f1">
+        <p class="MsoFooter"><span style="font-size:9pt;">GOR-F-084V02</span></p>
+      </div>
+                </tr>
+              </table>
+ 
+</div>
+
+</body>
+</html>`;
+      return contenidoHTML;
+    }
+
+function buildWordHtmlPM(ap, detalle){
+  const seleccionados = Object.keys(state.seleccion).filter(k => state.seleccion[k]);
+  const d = {
+    programaFormacion: state.acta.programaFormacion || state.programaFormacion || "",
+    numFicha: state.noFicha || "",
+    ciudad: state.acta.ciudad || "",
+    ambienteFormacion: state.acta.ambiente || "",
+    instGerente: state.acta.instructorGerente || "",
+    instTransversal: (detalle?.instructorImparte || state.acta.instructorImparte || ""),
+    competencia: (detalle?.competencia || ""),
+    resultadosAprendizaje: (detalle?.resultados || []).slice(),
+    temaPrincipal: (detalle && detalle.tema) ? detalle.tema : "",
+    tipoPM: (detalle && detalle.tipoPM) ? detalle.tipoPM : "academico",
+    fecha: state.fechaISO || "",
+    horaInicio: "",  // se deja vacío (no se solicita en el formulario)
+    horaFin: "",     // se deja vacío (no se solicita en el formulario)
+    aprMatriculados: String(seleccionados.length || ""),
+    aprProtocolante: ap?.nombre || "",
+    cantFaltaron: "",
+    nombresFaltaron: "",
+    reflexionInicial: "",
+    actividadesDesarrolladas: detalle?.desarrollo || "",
+    conclusiones: detalle?.conclusiones || "",
+    compromisos: (detalle?.compromisos || []).slice(),
+    anexosFotos: (detalle?.anexos || []).slice(),
+    firmaInstructor: state.acta.firmaInstructor || null,
+    firmaImparte: (detalle?.firmaImparte || null),
+    asistentesAdicionales: (state.acta.asistentesAdicionales || []).slice()
+  };
+
+  return buildWordHtmlTemplate(d);
+}
+async function generarActas(){
+  const selKeys = Object.keys(state.seleccion);
+  if(!selKeys.length){
+    showAlert("No hay aprendices seleccionados.", "alertDetalle");
+    return;
+  }
+
+  // Validación mínima de detalle
+  for(const k of selKeys){
+    ensureDetalle(k);
+    const d = state.detalle[k];
+    if(!(d.desarrollo || "").trim() || !(d.conclusiones || "").trim()){
+      showAlert("Complete DESARROLLO y CONCLUSIONES para todos los aprendices antes de finalizar.", "alertDetalle");
+      return;
+    }
+  }
+
+  const map = getAprMap();
+
+  // Descargar 1 archivo por aprendiz
+  for(const k of selKeys){
+    const ap = map[k];
+    const d = state.detalle[k];
+
+    const html = buildWordHtmlPM(ap, d);
+    const blob = new Blob([html], { type: "application/msword" });
+    const url = URL.createObjectURL(blob);
+
+    const fileName = `PM_${state.fechaYMD}_${sanitizeForFileName((state.noFicha || "").toString(),"FICHA")}_${sanitizeForFileName((ap?.nombre || "APRENDIZ").toUpperCase(),"APRENDIZ")}.doc`;
+
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = fileName;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+
+    setTimeout(() => URL.revokeObjectURL(url), 1500);
+    // Pequeña pausa para que el navegador registre descargas múltiples
+    await new Promise(res => setTimeout(res, 250));
+  }
+}
+
+
+$("firmaInstructor").addEventListener("change", async () => {
+  const info = $("firmaInstructorInfo");
+  const f = $("firmaInstructor").files && $("firmaInstructor").files[0];
+  if(!f){
+    state.acta.firmaInstructor = null;
+    if(info) info.textContent = "Sin archivo seleccionado.";
+    return;
+  }
+  const dataUrl = await fileToDataURL(f);
+  state.acta.firmaInstructor = dataUrl || null;
+  if(info) info.textContent = dataUrl ? `Cargada: ${f.name}` : "No se pudo leer la firma.";
+});
+
+if($("firmaImparte")) $("firmaImparte").addEventListener("change", async () => {
+  const info = $("firmaImparteInfo");
+  const f = $("firmaImparte").files && $("firmaImparte").files[0];
+  if(!f){
+    state.acta.firmaImparte = null;
+    if(info) info.textContent = "Sin archivo seleccionado.";
+    return;
+  }
+  const dataUrl = await fileToDataURL(f);
+  state.acta.firmaImparte = dataUrl || null;
+  if(info) info.textContent = dataUrl ? `Cargada: ${f.name}` : "No se pudo leer la firma.";
+});
+
+// ===== Asistentes adicionales (Datos del PM) =====
+function readAsistentesAdicionalesFromUI(){
+  const items = [];
+  const wrap = $("assistItems");
+  if(!wrap) return items;
+
+  wrap.querySelectorAll('[data-assist-row="1"]').forEach(row => {
+    const nombre = (row.querySelector('input[data-field="nombre"]')?.value || "").toString().trim();
+    const cargo  = (row.querySelector('input[data-field="cargo"]')?.value || "").toString().trim();
+    if(nombre || cargo){
+      items.push({ nombre: nombre.toUpperCase(), cargo: cargo.toUpperCase() });
+    }
+  });
+  return items;
+}
+
+function syncAsistentesAdicionalesState(){
+  state.acta.asistentesAdicionales = readAsistentesAdicionalesFromUI();
+}
+
+function addAsistenteItem(value = {nombre:"", cargo:""}){
+  const wrap = $("assistItems");
+  if(!wrap) return;
+
+  const row = document.createElement("div");
+  row.className = "grid";
+  row.dataset.assistRow = "1";
+  row.style.marginTop = "10px";
+
+  const fNombre = document.createElement("div");
+  fNombre.className = "field col-6";
+  fNombre.innerHTML = '<label>Nombre</label>';
+  const inpNombre = document.createElement("input");
+  inpNombre.type = "text";
+  inpNombre.placeholder = "Nombre";
+  inpNombre.value = (value.nombre || "").toString().toUpperCase();
+  inpNombre.dataset.field = "nombre";
+  fNombre.appendChild(inpNombre);
+
+  const fCargo = document.createElement("div");
+  fCargo.className = "field col-4";
+  fCargo.innerHTML = '<label>Cargo</label>';
+  const inpCargo = document.createElement("input");
+  inpCargo.type = "text";
+  inpCargo.placeholder = "Cargo";
+  inpCargo.value = (value.cargo || "").toString().toUpperCase();
+  inpCargo.dataset.field = "cargo";
+  fCargo.appendChild(inpCargo);
+
+  const fBtn = document.createElement("div");
+  fBtn.className = "field col-2";
+  fBtn.innerHTML = '<label>&nbsp;</label>';
+  const btnDel = document.createElement("button");
+  btnDel.type = "button";
+  btnDel.className = "btnMini";
+  btnDel.textContent = "Eliminar";
+  btnDel.addEventListener("click", () => {
+    row.remove();
+    syncAsistentesAdicionalesState();
+  });
+  fBtn.appendChild(btnDel);
+
+  const enforceUpper = (input) => {
+    input.addEventListener("input", () => {
+      const start = input.selectionStart;
+      const end = input.selectionEnd;
+      input.value = (input.value || "").toUpperCase();
+      if(typeof start === "number" && typeof end === "number"){
+        input.setSelectionRange(start, end);
+      }
+      syncAsistentesAdicionalesState();
+    });
+  };
+
+  enforceUpper(inpNombre);
+  enforceUpper(inpCargo);
+
+  row.appendChild(fNombre);
+  row.appendChild(fCargo);
+  row.appendChild(fBtn);
+
+  wrap.appendChild(row);
+  inpNombre.focus();
+  syncAsistentesAdicionalesState();
+}
+
+if($("btnAddAsistente")){
+  $("btnAddAsistente").addEventListener("click", () => addAsistenteItem());
+}
+if($("btnClearAsistentes")){
+  $("btnClearAsistentes").addEventListener("click", () => {
+    if($("assistItems")) $("assistItems").innerHTML = "";
+    syncAsistentesAdicionalesState();
+  });
+}
+
+$("btnFinalizar").addEventListener("click", async () => {
+  hideAlert("alertDetalle");
+  try{
+    await generarActas();
+  }catch(err){
+    console.error(err);
+    showAlert("Ocurrió un error al generar las actas. Revise la consola.", "alertDetalle");
+  }
+});
+</script>
+
+<datalist id="responsablesList"></datalist>
+
+  <!-- Overlay de carga / miniaturas para anexos -->
+  <div id="anexosOverlay" class="anexos-overlay" aria-hidden="true">
+    <div class="anexos-modal" role="dialog" aria-modal="true" aria-label="Carga de anexos">
+      <div class="anexos-modal-head">
+        <div class="anexos-modal-title" id="anexosModalTitle">Cargando anexos…</div>
+        <button type="button" class="btn btn-secondary" id="anexosModalClose">Cerrar</button>
+      </div>
+      <div class="anexos-progress">
+        <div class="anexos-progress-track"><div class="anexos-progress-bar" id="anexosProgressBar"></div></div>
+        <div class="anexos-progress-text" id="anexosProgressText">0%</div>
+      </div>
+      <div class="anexos-preview" id="anexosPreview"></div>
+    </div>
+  </div>
+
+</body>
+</html>
